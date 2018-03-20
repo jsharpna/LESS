@@ -1,0 +1,3 @@
+
+OUTDIR="./out/"
+FIGDIR="./figs/"

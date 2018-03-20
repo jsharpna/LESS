@@ -1,0 +1,32 @@
+\vspace{-.2cm}
+\section{A Lower Bound and Known Results}
+\label{sec:lower}
+\vspace{-.2cm}
+In this section we highlight the previously known results about the hypothesis testing problem \eqref{eq:main_problem}.
+This problem was studied in \cite{sharpnack2012detecting}, in which the authors demonstrated the following lower bound, which derives from techniques developed in \cite{arias2008searching}.
+\begin{theorem}{\cite{sharpnack2012detecting}}
+\label{thm:lower_bound}
+Hypotheses $H_0$ and $H_1$ defined in Eq.~(\ref{eq:main_problem}) are asymptotically indistinguishable if 
+\[
+\mu = o \left( \sqrt{\min\left\{\frac{\rho}{d_{\max}} \log \left( \frac{p d_{\max}^2}{\rho^2}\right), \sqrt{p} \right\}} \right)
+\]
+where $d_{\max}$ is the maximum degree of graph $G$. 
+\end{theorem}
+Now that a regime of asymptotic indistinguishability has been established, it is instructive to consider test statistics that do not take the graph into account (viz.~the statistics are unaffected by a change in the graph structure).
+Certainly, if we are in a situation where a naive procedure perform near-optimally, then our study is not warranted.
+As it turns out, there is a gap between the performance of the natural unstructured tests and the lower bound in Theorem~\ref{thm:lower_bound}.
+
+\begin{proposition}{\cite{sharpnack2012detecting}}
+{\em (1)} The thresholding test statistic, $\max_{v \in [p]} |y_v|$, asymptotically distinguishes $H_0$ from $H_1$ if $\mu = \omega (|C| \log (p/|C|))$.\\
+{\em (2)} The sum test statistic, $\sum_{v \in [p]} y_v$, asymptotically distinguishes $H_0$ from $H_1$ if $\mu = \omega (p / |C|)$.
+\end{proposition}
+
+As opposed to these naive tests one can scan over all clusters in $\Ccal$ performing individual likelihood ratio tests.
+This is called the scan statistic, and it is known to be a computationally intractable combinatorial optimization.
+Previously, two alternatives to the scan statistic have been developed: the spectral scan statistic \cite{sharpnack2012changepoint}, and one based on the uniform spanning tree wavelet basis \cite{sharpnack2012detecting}.
+The former is indeed a relaxation of the ideal, computationally intractable, scan statistic, but in many important graph topologies, such as the lattice, provides sub-optimal statistical performance.
+%But it is a relaxation of the binary hypercube $\{0,1\}^p$ to the sphere, which 
+The uniform spanning tree wavelets in effect allows one to scan over a subclass of the class, $\Ccal$, but tends to provide worse performance (as we will see in section 6) than that presented in this work.
+The theoretical results in \cite{sharpnack2012detecting} are similar to ours, but they suffer additional log-factors.
+
+

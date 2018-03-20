@@ -1,0 +1,57 @@
+\section{Introduction}
+
+Classically, the detection and identification of anomalies has focused on identifying rare behaviors and aberrant bursts in activity over a single data source or channel.
+With the advent of large surveillance projects, social networks, and mobile computing, statistics needs to comprehensively address the detection of anomalous activity in graphs.
+In reality, very little is known about the detection and localization of activity in graphs, despite a variety of real-world applications such as activity detection in social networks, network surveillance, disease outbreak detection, biomedical imaging, sensor network detection, gene network analysis, environmental monitoring and malware detection.
+Recent theoretical contributions in the statistical literature\cite{arias2011detection,addario2010combinatorial} have detailed the inherent difficulty of such combinatorial statistical problems but have positive results only under restrictive conditions on the graph topology.
+
+In machine learning and computer vision, Markov random fields (MRF) with Ising priors have been used to model activation patterns that are consistent with some graph structure.
+In this Bayesian setting, the maximum a-posteriori (MAP) estimate has dominated the research, due to its computational feasibility and success in computer vision applications.
+In this paper, we propose a penalized likelihood estimator that takes a similar form to the MRF MAP estimate.
+We develop a path algorithm for this estimator, as the regularization parameter varies, which can be solved with successive maximum flow computations.
+
+\subsection{Problem Setup}
+
+Consider a connected, possibly weighted, directed graph $G$ defined by a set of vertices $V$ ($|V| = p$) and directed edges $E$ ($|E| = m$) which are ordered pairs of vertices.
+We will let $u \to v$ denote an edge from the vertices $u$ to $v$.
+Furthermore, the edges may be assigned weights, $\{ W(e) \}_{e \in E}$, that determine the relative strength of the interactions of the adjacent vertices.
+In the graph-structured normal means problem, we observe one realization of the random vector
+\begin{equation}
+\label{eq:normal_means}
+\yb = \xb + \xib,
+\end{equation}
+where $\xb \in \RR^p$, $\xib \sim N(0,\Ib_{p\times p})$.
+The structure of activation pattern $\xb$ is determined by the graph $G$. 
+Specifically, we assume that there is a parameter $\rho$ (possibly
+dependent on $p$) such that the class of graph-structured activation patterns $\xb$ is given as follows.
+\[
+\Ccal = \left\{ C \subseteq V : \frac{\out(C)}{|C|} \le \rho \right\}
+\]
+\[
+\Xcal = \left\{\xb : \xb = \mu \one_C, \mu > 0, C \in \Ccal\right\}
+\]
+Here $\out(C) = \sum_{u \to v\in E} W(u \to v) I\{ u \in C, v \in \bar C \}$ is the weight of edges leaving the cluster $C$.
+In other words, the set of activated vertices $C$ have a small {\em cut size} in the graph $G$.
+Notice that the model \eqref{eq:normal_means} is equivalent to the more general model in which $\EE \xi_i^2 = \sigma^2$ with $\sigma$ known.
+As a notational convenience, if $\zb \in \RR^p$ and $C \subseteq [p]$, then we denote $\zb(C) = \sum_{v \in C} z_v$.
+Throughout the study, let the edge-incidence matrix of $G$ be $\nabla \in \RR^{m \times p}$ such that for $v \to u \in E$, $\nabla_{v\to u,v} = -W(v \to u)$, $\nabla_{v \to u,u} = W(v \to u)$ and is $0$ elsewhere.
+
+%If we wanted to consider known $\sigma^2$ then we would apply all our algorithms to $\yb / \sigma$ and replace $\mu$ with $\mu / \sigma$ in all of our statements.
+%For this reason, we call $\mu$ the signal-to-noise (SNR) ratio, and proceed with $\sigma = 1$.
+
+\subsection{Related Work}
+
+There have been several approaches to signal processing over graphs.
+Markov random fields (MRF) provide a succinct framework in which the underlying signal is modeled as a draw from an Ising or Potts model \cite{cevher2009sparse,ravikumar2006quadratic}.
+A similar line of research is the use of kernels over graphs, which began with the development of diffusion kernels \cite{kondor2002diffusion}, and was extended through Green's functions on graphs \cite{smola2003kernels}.
+In this study, we develop a path algorithm for a localization of structured signals, which is similar to the work of \cite{tibshirani2011solution,hoefling2010path}.
+
+The estimation of the mean of a Gaussian has served as a canonical problem in nonparametric statistics.
+When the mean is assumed to be sparse, asymptotic minimaxity has been established for thresholding and false-discovery rate based estimators \cite{donoho1995wavelet,abramovich2006adapting}.
+When the mean vector is assumed to lie within an ellipsoid then Pinsker's estimator has been shown to be asymptotically optimal as $\sigma$ approaches $0$ \cite{johnstone2002function}.
+
+In spatial statistics, it is common, when searching for anomalous activity to scan over regions in the spatial domain testing for elevated activity\cite{neill2004rapid,agarwal2006spatial}.
+There have been scan statistics proposed for graphs, most notably the work of \cite{priebe2005scan} in which the authors scan over neighborhoods of the graphs defined by the graph distance.
+Other work has been done on the theory and algorithms for scan statistics over specific graph models, but are not easily generalizable to arbitrary graphs \cite{yi2009unified, arias2011detection}.
+More recently, it has been found that scanning over all well connected regions of a graph can be computationally intractable, and so approximations to the intractable likelihood-based procedure have been studied \cite{sharpnack2012changepoint,sharpnack2012detecting}.
+We follow in this line of work, with a relaxation to the intractable restricted likelihood maximization.

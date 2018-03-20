@@ -1,0 +1,139 @@
+\section{Method: The Flow Path Algorithm}
+
+\subsection{Relaxed Graph Scan}
+
+The fundamental difficulty of obtaining an accurate estimate of $C^\star$ is that the true cluster of activation may be any of $\Ccal$.
+It is known by Karger's cut counting theorem\cite{karger1996new} that $|\Ccal|$ can be exponential in $\rho$ and $p$.
+Hence, a brute-force scan of all of the elements of $\Ccal$ is infeasible.
+
+It is instructive, when faced with a class of probability distributions, indexed by subsets $\Ccal \subseteq 2^{[p]}$, to think about what techniques we would use if we knew the correct cluster $C = C^\star \in \Ccal$ (which is often called oracle information).
+The maximum likelihood estimator for $\xb$ would thus be $\frac{(\one_C^\top \yb)_+}{|C|} \one_C$ and the log-likelihood would be proportionate to $(\yb^\top \one_C)_+^2 / |C|$.
+Because, of course, we would not be supplied with the true cluster $C^\star$, we must choose among $\Ccal$.
+We may then maximize the likelihood under the constraints to obtain the {\em graph scan statistic},
+\[
+\hat s = \max \frac{\yb^\top \one_C}{\sqrt{|C|}} \textrm{ s.t. } \frac{\out(C)}{|C|} \le \rho
+\]
+Notice that there is no guarantee that the program above is computationally feasible.
+If we were to add the constraint that $|C| \le n/2$ then determining feasibility would be NP-hard because the constraint $\out(C) / |C|$ corresponds to the sparsest cut (a known NP-hard combinatorial program).
+With this in mind we consider the following relaxation,
+%In fact, it belongs to a class of programs, specifically modular programs with submodular constraints that is known to contain NP-hard instantiations, such as the ratio cut program and the knapsack program \cite{papadimitriou1998combinatorial}.
+\[
+\begin{aligned}
+\hat s \le \max_{k \in [p]} \frac{1}{\sqrt k} \max_{C \subseteq V} \yb^\top \one_C \textrm{ s.t. } \out(C) \le \rho k, |C| \le k\\
+\le \max_{k \in [p]} \frac{1}{\sqrt k} \max_{C \subseteq V} \yb^\top \one_C \textrm{ s.t. } \out(C) + \rho |C| \le 2 \rho k\\
+\le \max_{k \in [p]} \frac{1}{\sqrt k} \max_{C \subseteq V} \yb^\top \one_C - \nu^{-1}(\out(C) + \rho |C|) + \nu^{-1} 2 \rho k\\
+\end{aligned}
+\]
+by weak duality with dual parameter $\nu^{-1} > 0$.
+We have thus established that we can relax the graph scan statistic program to a program with a submodular objective (the above display is a cut size with a modular term).
+Moreover, because we would like to reconstruct $C^\star$ and not in the value of $\hat s$, it suffices to solve the following penalized negative log-likelihood minimization,
+\begin{equation}
+\label{eq:primal}
+\min (\rho \one - \nu \yb) (C) + \out(C) \textrm{ s.t. } C \subseteq V 
+\end{equation}
+The result of this primal problem will be our estimator $\hat C$, the {\em relaxed graph scan}.
+Notice that the objective is a modular term $(\rho \one - \nu \yb) (C)$ and a out-degree $\out(C)$, which is solvable by $s$-$t$ graph cuts, as we will see below.
+This is similar to the MRF MAP estimators for binary activation patterns, which take the same form. (Such programs are called graph-representable in \cite{kolmogorov2004energy}.)
+Thus, by the min-cut max-flow theorem the MRF MAP estimate, and our estimator \eqref{eq:primal}, can be obtained by computing a maximum flow.
+
+\subsection{The Flow Path Algorithm}
+
+Dual to our primal program \eqref{eq:primal}, is a max-flow linear program, due to the min-cut max-flow theorem \cite{cormen2001introduction}.
+First we form an augmented graph over the vertices $V \cup \{s,t\}$, where $s$ and $t$ are the source and sink respectively.
+The edges are contained within $E \cup \{ s\to v \}_{v \in V} \cup \{ v \to t \}_{v \in V}$ with capacitances
+\[
+\cbb(\nu) = \left\{
+\begin{array}{ll}
+c(s \to v) = (\rho - \nu y_v)_- , &v \in V\\
+c(v \to t) = (\rho - \nu y_v)_+ , &v \in V\\
+c(u \to v) = W(u \to v), &u \to v \in E
+\end{array}
+\right.
+\]
+A flow over this graph, is a function mapping edges to $\RR$ that satisfies the feasibility conditions below. 
+The dual max-flow program is 
+\begin{equation}
+\label{eq:maxflow}
+\max \sum_{v \in V} f(s \to v) \textrm{\quad s.t. \quad} \fb \succeq \zero, \fb \preceq \cbb(\nu), \nabla^\top \fb = \zero
+\end{equation}
+where $\nabla$ is the edge incidence matrix for the graph $G$.
+One can form the residual flow graph from a feasible $\fb$ and $\cbb$ by making a new graph with capacitances $\cbb - \fb$.
+Algorithms such as Ford-Fulkerson and Edmonds-Karp iteratively find paths from $s$ to $t$ in the residual graph and increase $\fb$ along that path.
+
+We can then construct a set $C$ from $\fb$ by including any vertex that is connected to $s$ by a path in the residual flow graph.
+Specifically, $\fb$ is a solution to the max-flow program \eqref{eq:maxflow}, if and only if 
+\begin{enumerate}
+\item[(a)] $\fb$ is feasible, i.e.~$\fb \succeq \zero, \fb\preceq\cbb(\nu), \nabla^\top \fb = \zero$
+\item[(b)] $\sum_{v \in V} f(s \to v) - (\rho - \nu y_v)_- = (\rho \one - \nu \yb)(C) + \out(C)$
+\end{enumerate}
+If (a) and (b) hold then $C$ is a solution to \eqref{eq:primal}.
+
+The intuition behind the FlowPath algorithm is that we can construct a solution path for \eqref{eq:maxflow} that is piecewise linear, where the slope is calculated from max-flow over what we call the gradient graph resulting in the gradient flow, $\partial \fb$.
+This gradient flow calculation occurs at knots where the slope of the solution $\fb$ changes.
+We calculate the gradient graph in two stages: calculating a negative gradient flow to accommodate capacitances that are decreasing, and calculating a positive gradient flow in order to maintain that the solution indeed is the maximizer of \eqref{eq:maxflow}.
+For some edges that enter the sink, $t$, the capacitances are decreasing as $\nu$ is increasing.
+If the current flow $\fb$ meets these capacity constraints then the flow across these edges must decrease to maintain feasibility.
+Hence, we construct a negative gradient flow such that when we subtract this flow it compensates for the decrease in capacity.
+The capacities for the negative gradient flow are given below,
+\begin{equation}
+\label{eq:neg_graph}
+\begin{array}{ll}
+ c_-(u \to t) = y_u, &u \in V, 0 < \rho - \nu y_u = f(u \to t)\\
+c_-(s \to u) = \infty, &u \in V, 0 < f(u \to t)\\
+c_-(u \to v) = \infty, &u,v \in V, 0 < f(u \to v)\\
+c_-(u \to v) = 0, &\textrm{ otherwise}\\
+\end{array}
+\end{equation} 
+We will thus solve the max flow over $\cbb_-$, obtaining $\partial \fb_-$, and then impose that for each increase of $\nu$ by $\partial \nu$ we will decrease the flow by $\partial \fb_-$.
+We now add a positive gradient flow to make these increments maximize the objective.
+\begin{equation}
+\label{eq:pos_graph}
+\begin{array}{ll}
+c_+(s \to u) = y_u + \partial f_-(s \to u), &0 < \nu y_u - \rho = f(s \to u)\\
+c_+(s \to u) = \infty, &0 < \nu y_u - \rho < f(s \to u)\\
+c_+(u \to t) = \infty, &f(u \to t) < \rho - \nu y_u\\
+c_+(u \to v) = \infty, &f(u \to v) < W(u \to v)\\
+c_+(u \to v) = \partial f_-(u \to v), &f(u \to v) = W(u \to v)\\
+c_+(u \to v) = 0, &\textrm{ otherwise}\\
+\end{array}
+\end{equation}
+The intuition behind these choices of capacitances is that if at a specific edge the capacitance constraint is not met then it provides no constraint on the infinitesimal change in flow (hence $\infty$ capacitances).
+We are guaranteed to not have a path with all infinite capacitances because then there would be a path in the residual graph at the knot and by induction this will not happen.
+
+\begin{algorithm}
+\begin{algorithmic}
+\STATE Initialize $\nu = \rho / \max\{y_i\}_{i = 1}^p$, $\fb = \zero$, $\Pcal = \emptyset$
+\WHILE{$\nu < \infty$}
+\STATE Form the {\em negative derivative graph} with the vertices $V \cup \{s,t\}$ and capacitances according to \eqref{eq:neg_graph}.
+\STATE Let $\partial f_-$ be a solution to the max flow over $\cbb_-$.
+\STATE Form the {\em positive derivative graph} with the vertices $V \cup \{s,t\}$ and capacitances according to \eqref{eq:pos_graph}.
+\STATE Let $\partial f_+$ be a solution to the max flow over $\cbb_+$.
+\STATE Set $\partial \nu = \max \{ \partial \nu > 0 : \fb + \partial \nu ( \partial \fb_+ - \partial \fb_-) \textrm{ is feasible} \}$
+\STATE $\nu = \nu + \partial \nu$
+\STATE $\fb = \fb + \partial \nu (\partial \fb_+ - \partial \fb_-)$
+\STATE Add $\Pcal \leftarrow (\nu, \fb)$.
+\ENDWHILE
+\end{algorithmic}
+\caption{Flow Path}
+\label{alg:flowpath}
+\end{algorithm}
+
+In order to find $\partial \nu$, we look for the first constraint that is violated as we add the gradient flow to $\fb$.
+By its construction, $\cbb$ is non-negative, piecewise linear, and continuous in $\nu$ with slope (derivative calculated from positive $\nu$) at $\nu$ of $\partial \cbb$.
+Then let $\partial \fb$ be the solution to the program,
+\[
+\max \sum_{v \in V} \partial \fb(s \to v) \textrm{ s.t. } \partial \fb \in \partial \Fcal(\nu)
+\]
+where $\partial \Fcal(\nu) = \{ \partial \fb : \partial f(e) \ge 0 \textrm{ if } f(e) = 0 \textrm{ and } \partial f(e) \le \partial c(e)\textrm{ if } f(e) = c(e) \}$. 
+We argue (in the supplementary material \cite{sharpnack2013path}) that for $\partial \nu >0$ small enough $\fb + \partial \nu \partial \fb$ is a solution to \eqref{eq:maxflow} at $\nu + \partial \nu$.
+Furthermore, Algorithm \ref{alg:flowpath} solves the gradient flow program in the above display.
+
+\begin{theorem}
+\label{thm:main}
+Let $\Pcal$ be the result of the Algorithm \ref{alg:flowpath}.
+Then for each $\nu, \fb \in \Pcal$, $\fb$ is the solution to the dual program \eqref{eq:maxflow} for $\nu$. 
+\end{theorem}
+
+The proof can be found in \cite{sharpnack2013path}.
+Hence, the path algorithm returns maximal flows according to \eqref{eq:maxflow}, which by analyzing the residual flow graph gives us a solution path for the RGS.
+

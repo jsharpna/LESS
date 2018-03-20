@@ -1,0 +1,397 @@
+\section{Graph Cut Detector}
+
+The scan statistic framework will motivate our detector.
+Consider testing the null hypothesis $H_0 = \{\Ncal(0,\sigma^2 \Ib_p)\}$ against the point alternative $H_1^C = \{ \Ncal( \frac{\mu}{\sqrt{|C|}} \one_C) \}$ for some $C \subset [p]$.
+Then consider the test statistic, $Z_C = \one_C^\top \yb / \sqrt{|C|}$, with corresponding p-value, $\Phi (Z_C/\sigma)$, the survival function of the standard normal.
+From these point hypotheses, we form the test for our composite alternative $H_1 = \cup_{C \in \Ccal} H_1^C$, given by the test statistic, 
+\begin{equation}
+\label{eq:scan_stat}
+Z = \sup_{C \in \Ccal} Z_C = \sup_{C \in \Ccal} \frac{\one_C^\top \yb}{\sqrt{|C|}}
+\end{equation}
+
+\[
+\begin{aligned}
+\frac{\one_{\hat C}^\top}{\sqrt{|\hat C|}} \frac{\one_C}{\sqrt{|C|}} = \frac{\one_{\hat C}^\top}{\sqrt{|\hat C|}} \yb + \frac{\one_{\hat C}^\top}{\sqrt{|\hat C|}} \epsilonb
+\end{aligned}
+\]
+
+\subsection{The Complexity of Graph Cuts}
+
+Let $\xi \in \RR^n$ be a random variable distributed according to a product measure $\PP$.
+Then the $\PP$-complexity of the class $\Ccal \subset 2^{[n]}$ is given by
+\[
+\Upsilon_{\PP}(\Ccal) = \EE_{\PP} \sup_{C \in \Ccal} \frac{\one_C^\top \xi}{\sqrt{|C|}}
+\]
+We will primarily consider the Gaussian and Rademacher complexity which we call $g(\Ccal)$ and $b(\Ccal)$ respectively.
+We would like to answer the question, what is a good bound on either $g(\Ccal)$ or $b(\Ccal)$ where $\Ccal = \{C \subset [n] : |\partial C| \le \rho \}$?
+Incidentally this will provide a bound on the $VC$ dimension of $\Ccal$.
+The following is a simple bound based on the cut counting theorem of Karger.
+
+\begin{proposition}
+Let $d_{\min}$ denote the minimum degree of any edge in $E$.
+\[
+g(\Ccal) \le L \sqrt{\frac{\rho}{d_{\min}} \log(n)}
+\]
+where $L$ is some universal constant.
+\end{proposition}
+
+\begin{proof}
+Let $N(\Ccal,\epsilon)$ be the $\epsilon$-covering number of $\Ccal$ where the distance between $C,C' \in \Ccal$ is given by $2(1 - \frac{|C \cap C'|}{\sqrt{|C||C'|}})$.
+By Dudley's bound of the Gaussian complexity we know that because the diameter of $\Ccal$ is $2$ then
+\[
+g(\Ccal) \le L \int_0^\infty \sqrt{\log N(\Ccal,\epsilon)} d\epsilon \le 2 L \sqrt{\log |\Ccal|}
+\]
+where $L$ is some universal constant.
+It is known by Karger's cut counting theorem that $|\Ccal| \le n^{2\rho/d_{\min}}$ from which the statement follows.
+\end{proof}
+
+Based on our lower bound we know then that up to log factors this is tight for a $d$-regular graph.
+But using the UST we can provide a bound that is more robust to minor changes in the degree distribution, such as the creation of an vertex with degree $1$ (in which case this becomes the trivial bound).
+
+\begin{theorem}
+
+Let $r_e$ denote the effective resistance of $e$, $r_{\partial C} = \sum_{e \in \partial C} r_e$, and $r_\Ccal = \max \{ r_{\partial C} : C \in \Ccal \}$.
+Suppose that $r_\Ccal \le n$ then
+\[
+g(\Ccal) \le 2 \left(\sqrt{r_\Ccal} + \sqrt{\frac{1}{2} \log n}\right)\sqrt{\log (n-1)} + 2 \sqrt{\log 2}
+\]
+
+\end{theorem}
+
+\begin{proof}
+
+Let $\Ccal(\Tcal) = \{C \subset [n] : \|\nabla_\Tcal \one_C \|_1 \le (\sqrt{r_\Ccal} + \sqrt{\log 1/\delta})^2 \}$ and $\delta > 0$ then under the UST for any $C$, $\PP_\Tcal \{C \notin \Ccal(\Tcal)\} \le \delta$.
+\[
+\begin{aligned}
+\EE_\xi \sup_{C \in \Ccal} \frac{\xi^\top \one_C}{\sqrt{|C|}} = \EE_\xi \sup_{C \in \Ccal} \EE_\Tcal  \frac{\xi^\top \one_C}{\sqrt{|C|}} \left[ \one\{ C \in \Ccal(\Tcal) \} + \one\{ C \notin \Ccal(\Tcal) \} \right] \\
+\le \EE_\xi \sup_{C \in \Ccal} \left[ \EE_\Tcal \one\{ C \in \Ccal(\Tcal) \} \sup_{C' \in \Ccal(\Tcal)}  \frac{\xi^\top \one_{C'}}{\sqrt{|C'|}}
++ \EE_\Tcal \one\{ C \notin \Ccal(\Tcal) \} \sup_{C' \in 2^{[n]}} \frac{\xi^\top \one_C'}{\sqrt{|C'|}} \right]\\
+\le \EE_\xi \sup_{C \in \Ccal} \left[ \EE_\Tcal \sup_{C' \in \Ccal(\Tcal)}  \frac{\xi^\top \one_{C'}}{\sqrt{|C'|}}
++ \EE_\Tcal \one\{ C \notin \Ccal(\Tcal) \} \sup_{C' \in 2^{[n]}} \frac{\xi^\top \one_C'}{\sqrt{|C'|}} \right]\\
+\le \EE_\xi  \left[ \EE_\Tcal \sup_{C' \in \Ccal(\Tcal)}  \frac{\xi^\top \one_{C'}}{\sqrt{|C'|}}
++ \sup_{C \in \Ccal} \PP_\Tcal \{ C \notin \Ccal(\Tcal) \} \sup_{C' \in 2^{[n]}} \frac{\xi^\top \one_C'}{\sqrt{|C'|}} \right]\\
+\le \EE_\Tcal g(\Ccal(\Tcal)) + g(2^{[n]}) \sup_{C \in \Ccal} \PP_\Tcal \{ C \notin \Ccal(\Tcal) \} 
+\end{aligned}
+\]
+
+For any $\Tcal$, $|\Ccal(\Tcal)| \le (n - 1)^{(\sqrt{r_\Ccal} + \sqrt{\log 1/\delta})^2}$.
+By the same arguments as in the previous proposition, 
+\[
+g(\Ccal(\Tcal)) \le 2 \sqrt{(\sqrt{r_\Ccal} + \sqrt{\log 1/\delta})^2 \log (n-1)}
+\]
+Furthermore, $g(2^{[n]}) \le a \sqrt{n}$ where $a = 2 \sqrt{\log 2}$.
+Setting $\delta = n^{-1/2}$ we have the following bound on the Gaussian complexity,
+\[
+g(\Ccal) \le 2 (\sqrt{r_\Ccal} + \sqrt{\frac{1}{2} \log n})\sqrt{\log (n-1)} + a
+\]
+
+\textbf{TODO}: Why is $|\Ccal(\Tcal)| \le (n-1) \ldots$? Not a big issue but where does $n-1$ come from when there are still $n$ vertices in the tree?
+
+\end{proof}
+
+\subsection{Relaxation}
+
+Consider the following relaxation of the above program.
+\[
+\hat s = \max_{\xb \in [0,1]^p} \frac{\xb^\top \xi}{\sqrt{\one^\top \xb}} \textrm{ s.t. } \| \nabla \xb \|_1 \le \rho
+\]
+We will define the following edge incidence matrix weighted by the effective resistances of the edges:
+\[
+\nabla_{\Rcal,e} = r_e (\delta_{e^+} - \delta_{e^-})
+\]
+As in the previous theorem we will define for a given spanning tree $\Tcal$,
+\[
+\Xcal(\Tcal) = \{ \xb : \| \nabla_\Tcal \xb \|_1 \le (\sqrt{r_\Xcal} + \sqrt{\log (1 / \delta)})^2 \}
+\]
+where $r_\Xcal = \max{\| \nabla_\Rcal \xb \|_1 : x \in \Xcal}$.
+We obtain the following theorem.
+\begin{theorem}
+Under the null hypothesis, $\xb = \zero$, the relaxed test statistic has the following bound
+\[
+\begin{aligned}
+\hat s \le \frac{\log (2p / \delta)}{\sqrt{ \left(\sqrt{r_\Xcal} + \sqrt{\frac 12 \log n} \right)^2 \log p} } + 2 \sqrt{\left(\sqrt{r_\Xcal} + \sqrt{\frac 12 \log n} \right)^2 \log p} \\
++ \sqrt{2 p \log p} + \sqrt{2 \log 1 / \delta}
+\end{aligned}
+\]
+with probability at least $1 - \delta$.
+\end{theorem}
+
+\begin{proof}
+\[
+\begin{aligned}
+\hat s = \sup_{\xb \in \Xcal} \frac{\xi^\top \xb}{\sqrt{\one^\top \xb}} = \sup_{\xb \in \Xcal} \EE_\Tcal  \frac{\xi^\top \xb}{\sqrt{\one^\top \xb}} \left[ \one\{ \xb \in \Xcal(\Tcal) \} + \one\{ \xb \notin \Xcal(\Tcal) \} \right] \\
+\le \sup_{\xb \in \Xcal} \left[ \EE_\Tcal \one\{ \xb \in \Xcal(\Tcal) \} \sup_{\xb' \in \Xcal(\Tcal)}  \frac{\xi^\top \xb'}{\sqrt{\one^\top \xb'}}
++ \EE_\Tcal \one\{ \xb \notin \Xcal(\Tcal) \} \sup_{\xb' \in [0,1]^p} \frac{\xi^\top \xb'}{\sqrt{\one^\top \xb'}} \right]\\
+\le \sup_{\xb \in \Xcal} \left[ \EE_\Tcal \sup_{\xb' \in \Xcal(\Tcal)}  \frac{\xi^\top \xb'}{\sqrt{\one^\top \xb'}}
++ \EE_\Tcal \one\{ \xb \notin \Xcal(\Tcal) \} \sup_{\xb' \in [0,1]^p} \frac{\xi^\top \xb'}{\sqrt{\one^\top \xb'}} \right]\\
+\le \EE_\Tcal \sup_{\xb \in \Xcal(\Tcal)}  \frac{\xi^\top \xb}{\sqrt{\one^\top \xb}}
++ \sup_{\xb \in \Xcal} \PP_\Tcal \{ \xb \notin \Xcal(\Tcal) \} \sup_{\xb' \in [0,1]^p} \frac{\xi^\top \xb'}{\sqrt{\one^\top \xb'}} \\
+\end{aligned}
+\]
+
+\begin{claim}
+\[
+\EE_\xi \sup_{\xb' \in [0,1]^p} \frac{\xi^\top \xb'}{\sqrt{\one^\top \xb'}} \le \sqrt{2 p \log 2}
+\]
+\end{claim}
+
+We will proceed to prove the above claim.  In words it follows from the fact that solutions to the program are integral by the generic chaining.
+\[
+\begin{aligned}
+\EE_\xi \sup_{\xb' \in [0,1]^p} \frac{\xi^\top \xb'}{\sqrt{\one^\top \xb'}} = \EE_\xi \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb' \in [0,1]^p: \one^\top \xb \le t} \xi^\top \xb' \\
+= \EE_\xi \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb' \in \{0,1\}^p: \one^\top \xb \le t} \xi^\top \xb' = \EE_\xi \sup_{\xb' \in \{0,1\}^p} \frac{\xi^\top \xb'}{\| \xb'\|} \le \sqrt{2 p \log 2}\\
+\end{aligned}
+\]
+
+\begin{claim}
+Denote $r = (\sqrt{r_\Xcal} + \sqrt{\frac 12 \log p} )^2$.
+For any spanning tree $\Tcal$,
+\[
+\sup_{\xb \in \Xcal(\Tcal)}  \frac{\xi^\top \xb}{\sqrt{\one^\top \xb}} \le \frac{\log (p / 2\delta)}{\sqrt{r \log p} } + 2 \sqrt{r \log p}
+\]
+with probability at least $1 - \delta$ under $H_0$.
+\end{claim}
+
+This will follow from weak duality and a clever choice of dual parameters.
+When parsing the following arguments it is beneficial to note that for $a,b > 0$, $\sup_{t \in \RR} a t - b t^2 = a^2 / (4b)$.
+\[
+\begin{aligned}
+\sup_{\xb \in \Xcal(\Tcal)} \frac{\xi^\top \xb}{\sqrt{\one^\top \xb}} = \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in \Xcal(\Tcal), \one^\top \xb \le t}  \xi^\top \xb\\
+= \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in [0,1]^p} \inf_{\eta \ge 0} \xi^\top \xb - \eta_0 \one^\top \xb - \eta_1 \|\nabla_\Tcal \xb \|_1 + \eta_0 t + \eta_1 r\\
+\le \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in \{0,1\}^p} \xi^\top \xb - \one^\top \xb \sqrt{\frac{r}{t} \log p} - \|\nabla_\Tcal \xb \|_1 \sqrt{\frac{t}{r} \log p} + 2 \sqrt{rt \log p}\\
+= \sup_{k \in [p]} \sup_{\xb \in \{0,1\}^p : \| \nabla_\Tcal \xb \|_0 = k} \sup_{t \in [p]} \frac{\xi^\top \xb}{\sqrt t} - \frac{\one^\top \xb}{t} \sqrt{r \log p} - k \sqrt{\frac{1}{r} \log p} + 2 \sqrt{r \log p}\\
+\le \sup_{k \in [p]} \sup_{\xb \in \{0,1\}^p : \| \nabla_\Tcal \xb \|_0 = k} \frac{(\xi^\top \xb)^2}{4 \| \xb \|^2 \sqrt{r \log p}} - k \sqrt{\frac{1}{r} \log p} + 2 \sqrt{r \log p}\\
+\end{aligned}
+\]
+We know that with probability at least $1 - \delta$ for all $k \in [p]$,
+\[
+\sup_{\xb \in \{0,1\}^p, \|\nabla_\Tcal \xb \|_0 = k} \left| \frac{\xi^\top \xb}{\| \xb \|} \right| \le \sqrt{2 k \log p} + \sqrt{2 \log (2p / \delta)}
+\]
+So we can bound the above,
+\[
+\begin{aligned}
+\sup_{\xb \in \Xcal(\Tcal)}  \frac{\xi^\top \xb}{\sqrt{\one^\top \xb}} \le \sup_{k \in [p]} \frac{(\sqrt{2 k \log p} + \sqrt{2 \log (2p / \delta)})^2}{4 \sqrt{r \log p}} - k \sqrt{\frac{1}{r} \log p} + 2 \sqrt{r \log p}\\
+\le \sup_{k \in [p]} \frac{\sqrt{k \log (2p / \delta)}}{\sqrt{r}} - \frac{k}{2} \sqrt{\frac{\log p}{r}} + \frac{\log(2p / \delta)}{2\sqrt{r \log p}} + 2 \sqrt{r \log p}\\ 
+\le \frac{\log (2p / \delta)}{2 \sqrt{r \log p} } + \frac{\log(2p / \delta)}{2\sqrt{r \log p}} + 2 \sqrt{r \log p}\\ 
+\le \frac{\log (2p / \delta)}{\sqrt{r \log p} } + 2 \sqrt{r \log p}\\ 
+\end{aligned}
+\]
+Combining all of these results,
+\[
+\begin{aligned}
+\hat s \le \frac{\log (2p / \delta)}{\sqrt{ \left(\sqrt{r_\Xcal} + \sqrt{\frac 12 \log n} \right)^2 \log p} } + 2 \sqrt{\left(\sqrt{r_\Xcal} + \sqrt{\frac 12 \log n} \right)^2 \log p} \\
++ \sqrt{2 p \log p} + \sqrt{2 \log 1 / \delta}
+\end{aligned}
+\]
+
+\end{proof}
+
+
+\subsection{Submodular Strong Duality}
+
+\begin{lemma}
+\label{lem:submod_convex}
+Let $\{F_i\}_{i = 1}^k$ be submodular functions over $\{0,1\}^p$ and $\rhobb \in \RR^k$.
+Consider the Primal linear integer program with submodular constraints, for fixed $\yb \in \RR^p$,
+\begin{equation}
+\label{eq:submod_primal}
+\min_{\xb \in \{0,1\}^p}  \xb^\top \yb \textrm{\quad s.t. \quad} \forall i \in [k], F_i(\xb) \le \rho_i
+\end{equation}
+Suppose this is primal feasible,
+then dual to this is the convex program
+\begin{equation}
+\label{eq:submod_dual}
+\max_{\etab \in \RR_+^k, \sbb_i \in \RR^p, i \in [k]}  - \sum_{v \in [p]} (y_v + \sum_{i=1}^k \eta_i s_{i,v})_- - \sum_{i = 1}^k \eta_i \tilde f_i (\sbb_i) - \etab^\top \rhobb
+\end{equation}
+where $f_i$ is the Lov\'asz extension of $F_i$ and $\tilde f_i$ is its Fenchel conjugate over $[0,1]^p$.
+Let $\{\sbb_i^*,\eta_i^*\}$ be optima for \eqref{eq:submod_dual}, then 
+\[
+\xb^* = \{\yb + \sum_{i=1}^k \eta^*_i \sbb^*_i \le 0\}
+\]
+is an optima for \eqref{eq:submod_primal}.
+The objectives at these optima for \eqref{eq:submod_primal} and \eqref{eq:submod_dual} are equal (strong duality).
+\end{lemma}
+
+\begin{proof}
+Let's begin by introducing Lagrangian parameters, so that \eqref{eq:submod_primal} is equal to,
+\[
+\min_{\xb \in \{0,1\}^p} \sup_{\etab \in \RR_+^k}  \xb^\top \yb + \sum_{i = 1}^k \eta_i (F_i(\xb) - \rho_i)
+\]
+We introduce a result from submodular optimization [Bach] that 
+\[
+F_i(\xb) = \sup_{\sbb \in \RR^p} \sbb^\top \xb - \tilde f_i (\sbb)
+\]
+Hence, \eqref{eq:submod_primal} is equal to,
+\[
+\begin{aligned}
+&\min_{\xb \in \{0,1\}^p} \sup_{\etab \in \RR_+^k} \sup_{\sbb_i \in \RR^p, i \in [k]} \xb^\top \yb + \sum_{i = 1}^k \eta_i (\sbb_i^\top \xb - \tilde f_i (\sbb_i) - \rho_i) \\
+&\ge \min_{\xb \in [0,1]^p} \sup_{\etab \in \RR_+^k} \sup_{\sbb_i \in \RR^p, i \in [k]} \xb^\top \yb + \sum_{i = 1}^k \eta_i (\sbb_i^\top \xb - \tilde f_i (\sbb_i) - \rho_i) \\
+\end{aligned}
+\]
+as a convex relaxation of the hypercube.  We will now show that the relaxation attains optimum at integral values of $\xb$, hence the above inequality is an equality.
+Define $\textrm{obj}(\etab, \{\sbb_i\}, \xb) = \xb^\top \yb + \sum_{i = 1}^k \eta_i (\sbb_i^\top \xb - \tilde f_i (\sbb_i) - \rho_i)$ and notice that it is concave in $\etab, \{\sbb_i\}$ and convex in $\xb$.
+Also, the domain $[0,1]^p$ is bounded and each domain of obj is non-empty closed and convex.
+\[
+\begin{aligned}
+&\min_{\xb \in [0,1]^p} \sup_{\etab \in \RR_+^k} \sup_{\sbb_i \in \RR^p, i \in [k]} \textrm{obj}(\etab, \{\sbb_i\}, \xb) \\
+& = \sup_{\etab \in \RR_+^k} \min_{\xb \in [0,1]^p} \sup_{\sbb_i \in \RR^p, i \in [k]} \textrm{obj}(\etab, \{\sbb_i\}, \xb) \\
+& = \sup_{\etab \in \RR_+^k} \sup_{\sbb_i \in \RR^p, i \in [k]} \min_{\xb \in [0,1]^p} \textrm{obj}(\etab, \{\sbb_i\}, \xb) \\
+\end{aligned}
+\]
+Both of these equalities follow from a saddlepoint result in Rockafeller p.393 Cor 37.3.2.
+The first equality depends also on the fact that $\sup_{\sbb_i \in \RR^p, i \in [k]} \textrm{obj}(\etab, \{\sbb_i\}, \xb)$ is affine in $\etab$, while it is convex in $\xb$ (because it is the pointwise maximum of affine functions).
+The second equality follows from the fact that obj with $\etab$ fixed is concave in $\{\sbb_i\}$ and affine in $\xb$.
+Now, we see that because $\textrm{obj}(\etab, \{\sbb_i\}, \xb)$ is linear over $\xb$ then its optimum is attained at
+\[
+\xb^*(\etab, \{\sbb_i\}) = \{\yb + \sum_{i=1}^k \eta_i \sbb_i \le 0\}
+\]
+and so $\xb^*(\etab, \{\sbb_i\}) \in \{0,1\}^p$.
+Let then the optima be the triplet $(\etab^*, \{\sbb_i^*\}, \xb^*)$.
+And so fixing $\xb^* = \xb^*(\etab^*, \{\sbb^*_i\})$
+\[
+\begin{aligned}
+\textrm{obj}(\etab^*, \{\sbb^*_i\}, \xb^*) = \min_{\xb \in \{0,1\}^p} \sup_{\etab \in \RR_+^k} \sup_{\sbb_i \in \RR^p, i \in [k]} \textrm{obj}(\etab, \{\sbb_i\}, \xb) \\
+= \sup_{\etab \in \RR_+^k} \sup_{\sbb_i \in \RR^p, i \in [k]} \textrm{obj}(\etab, \{\sbb_i\}, \xb^*) \ge \min_{\xb \in \{0,1\}^p} \sup_{\etab \in \RR_+^k} \sup_{\sbb_i \in \RR^p, i \in [k]} \textrm{obj}(\etab, \{\sbb_i\}, \xb^*)
+\end{aligned}
+\]
+Hence, \eqref{eq:submod_primal} is equal to $\textrm{obj}(\etab^*, \{\sbb^*_i\}, \xb)$.
+\end{proof}
+
+
+\begin{theorem}
+\label{thm:submod_duality}
+Define the Lagrangian of the submodular program \eqref{eq:submod_primal}:
+\[
+g(\xb,\etab) = \xb^\top \yb + \sum_{i \in [k]} \eta_i (F_i(\xb) - \rho_i)
+\]
+Then given primal feasibility,
+\[
+\min_{\xb \in \{0, 1\}^p} \max_{\etab \in \RR_+^k} g(\xb,\etab) = \max_{\etab \in \RR_+^k} \min_{\xb \in \{0, 1\}^p} g(\xb,\etab)
+\]
+Moreover, the Lagrangian dual function
+\[
+\min_{\xb \in \{0, 1\}^p} g(\xb,\etab)
+\]
+is concave in $\etab$.
+\end{theorem}
+
+\begin{proof}
+We have shown in Lemma \ref{lem:submod_convex} that 
+\[
+\min_{\xb \in \{0, 1\}^k} \max_{\etab \in \RR_+^k} g(\xb,\etab)
+= - \left( \min_{\etab \in \RR_+^k, \sbb_i \in \RR^p, i \in [k]}  \sum_{v \in [p]} (y_v + \sum_{i=1}^k \eta_i s_{i,v})_- + \sum_{i = 1}^k \eta_i \tilde f_i (\sbb_i) + \etab^\top \rhobb \right)
+\]
+Let us isolate the part of the RHS that depends on $\{ \sbb_i \}$, and then evaluate the Fenchel conjugate.
+\begin{equation}
+\label{eq:srhs}
+\begin{aligned}
+&\min_{\sbb_i\in \RR^p} \sum_{v \in [p]} (y_v + \sum_{i=1}^k \eta_i s_{i,v})_- + \sum_{i = 1}^k \eta_i \tilde f_i (\sbb_i) \\
+&= \min_{\sbb_i\in \RR^p} \max_{\tilde \sbb_i \in [0,1]^p} \sum_{v \in [p]} (y_v + \sum_{i=1}^k \eta_i s_{i,v})_- + \sum_{i = 1}^k \eta_i (\sbb_i^\top \tilde \sbb_i - f_i (\tilde \sbb_i))\\
+&= \max_{\tilde \sbb_i \in [0,1]^p} \min_{\sbb_i\in \RR^p} \sum_{v \in [p]} (y_v + \sum_{i=1}^k \eta_i s_{i,v})_- + \sum_{i = 1}^k \eta_i (\sbb_i^\top \tilde \sbb_i - f_i (\tilde \sbb_i))
+\end{aligned}
+\end{equation}
+This saddlepoint result follows from Rockafeller p.393 Cor 37.3.2, and the fact that the objective is concave in $\tilde \sbb$, convex in $\sbb$, the domains are non-empty closed convex, and $[0,1]^p$ is bounded. 
+We can now evaluate the term that depends on $\{s_{i,v}\}_i$. 
+\[
+(y_v + \sum_{j=1}^k \eta_j s_{j,v})_- + \sum_{j = 1}^k \eta_j s_{j,v} \tilde s_{j,v} = \left\{ 
+\begin{array}{ll}
+- y_v + \sum_{j=1}^k \eta_j s_{j,v} (\tilde s_{j,v} - 1), & y_v + \sum_{j=1}^k \eta_j s_{j,v} \le 0\\
+\sum_{j = 1}^k \eta_j s_{j,v} \tilde s_{j,v}, & y_v + \sum_{j=1}^k \eta_j s_{j,v} > 0
+\end{array}\right.
+\]
+Let $\Ical = \{i \in [k] : \eta_i > 0 \}$ and suppose that $\Ical \ne \emptyset$.
+The subgradient in $s_{i,v}$ for $i \in \Ical$ is given by 
+\[
+\left\{
+\begin{array}{ll}
+\{ \eta_i (\tilde s_{i,v} - 1)\}, & y_v + \sum_{j=1}^k \eta_j s_{j,v} < 0\\
+\{ \eta_i \tilde s_{i,v} \}, & y_v + \sum_{j=1}^k \eta_j s_{j,v} > 0\\ [0pt]
+[\eta_i (\tilde s_{i,v} - 1), \eta_i \tilde s_{i,v}] , & y_v + \sum_{j=1}^k \eta_j s_{j,v} = 0\\
+\end{array} \right.
+\]
+Now we can see that if $\tilde s_{i,v} < 1$ for $i \in \Ical$ then the minimizer will satisfy $y_v + \sum_{j=1}^k \eta_j s_{j,v} \ge 0$, and if 
+$\tilde s_{i,v} > 0$ for $i \in \Ical$ then the minimizer will satisfy $y_v + \sum_{j=1}^k \eta_j s_{j,v} \le 0$.
+Suppose there exists an $i$ such that $\tilde s_{i,v} \in (0,1)$, then the minimizer will satisfy $y_v + \sum_{j=1}^k \eta_j s_{j,v} = 0$ and the relevant term in the objective is $\sum_{j} \eta_j s_{j,v} \tilde s_{j,v}$.
+So unless the vector $(\eta_j \tilde s_{j,v})_j$ is normal to the plane $y_v + \sum_{j=1}^k \eta_j s_{j,v} = 0$, then this will be minimized at $-\infty$.
+This only occurs when $\tilde s_{j,v}$ are equal for all $j \in \Ical$.
+Hence, we are able to assume that either $\tilde s_{i,v} \in\{0, 1\}$ for all $i\in \Ical$, $\tilde s_{i,v}$ are all equal for $i \in \Ical$, or the objective is minimized at $-\infty$.
+
+Suppose that $\tilde s_{i,v} \in\{0, 1\}$ for all $i \in \Ical$.
+Now let us evaluate the term dependent on $\{s_{i,v}\}_i$, and let $A = \{\tilde s_{i,v} = 1\} \cap \Ical$.
+\[
+\left\{
+\begin{array}{ll}
+- y_v - \sum_{j \in \Ical \backslash A} \eta_j s_{j,v}, & y_v + \sum_{j=1}^k \eta_j s_{j,v} \le 0\\
+\sum_{j \in A} \eta_j s_{j,v}, & y_v + \sum_{j=1}^k \eta_j s_{j,v} > 0
+\end{array}\right.
+\]
+So as before, the minimizer will satisfy in both of these cases $y_v + \sum_{j=1}^k \eta_j s_{j,v} = 0$ or the minimum is $-\infty$.
+This implies that $A = \Ical$ or $A = \emptyset$ with the objective above evaluating to $-y_v$ or $0$ respectively.
+Combining these conclusions, we find that $\{ \tilde s_{i,v}\}_{i \in \Ical}$ must be identical, so we can introduce the variable $\tilde s_v$ and rewrite \eqref{eq:srhs} as
+\[
+\max_{\tilde \sbb \in [0,1]^p} -\yb^\top \tilde \sbb - \sum_{i = 1}^k \eta_i f_i(\tilde \sbb) = \max_{\tilde \sbb \in \{0,1\}^p} -\yb^\top \tilde \sbb - \sum_{i = 1}^k \eta_i f_i(\tilde \sbb)
+\]
+This follows from the fact that in \eqref{eq:srhs} only the set $\Ical$ contributes to the objective.
+This follows from Prop 7 in [Bach], and the fact that $\yb^\top \tilde \sbb + \sum_{i = 1}^k \eta_i f_i(\tilde \sbb)$ is submodular.
+\[
+\min_{\xb \in \{0, 1\}^p} \max_{\etab \in \RR_+^k} g(\xb,\etab) = 
+\max_{\etab \in \RR_+^k} - (\max_{\tilde \sbb \in \{0,1\}^p} - \yb^\top \tilde \sbb - \sum_{i = 1}^k \eta_i f_i(\tilde \sbb)) 
+= \max_{\etab \in \RR_+^k} \min_{\xb \in \{0, 1\}^p} g(\xb,\etab)
+\]
+We know that the Lagrangian dual function
+\[
+\min_{\xb \in \{0, 1\}^p} g(\xb,\etab)
+\]
+is concave because it is the pointwise infimum of affine functions.
+\end{proof}
+
+
+
+\subsection{Low Cut Scan}
+
+Perhaps the most well known inference procedure for noisy signals over graphs is maximum a-posteriori estimator (MAP) under a Markov random field (MRF).
+We will focus on the binary label setting, in which there is an energy function that consists of a vertex potential and dyadic contributions,
+\[
+\min_{\xb \in \RR^p} \sum_{i \in V} \theta_i x_i + \sum_{i,j} w_{i,j} x_i x_j
+\]
+The MAP estimator for binary label noise under the Ising prior is known to take the form above.
+Specifically, the problem above is solvable by graph cuts, which by the max flow - min cut duality, is solvable by max flow algorithms such as Ford-Fulkerson and Edmonds-Karp.
+We will see that by Theorem \ref{thm:submod_duality}, this successive applications of cut problems will lead to an exact solution of the \eqref{eq:scan_stat}.
+
+Notice that we can rewrite \eqref{eq:scan_stat} in the following way:
+\[
+\sup_{k \in [p]} \frac{1}{\sqrt{k}} \sup_{\xb \in \{0,1\}^p} \xb^\top \yb \textrm{ s.t. } \one^\top \xb \le k, \xb^\top \Delta \xb \le \rho  
+\]
+This follows from the fact that if $\xb$ is the minimizer for the inner program for $k$, and $\one^\top \xb < k$ then it is the minimizer for the inner program for $k \leftarrow k - 1$.
+We will focus on solving the program,
+\begin{equation}
+\label{eq:inner_prog}
+\sup_{\xb \in \{0,1\}^p} \xb^\top \yb \textrm{ s.t. } \one^\top \xb \le k, \xb^\top \Delta \xb \le \rho = - \sup_{\eta_0, \eta_1 \ge 0} \inf_{\xb \in \{0,1\}^p} g(\etab,\xb)
+\end{equation}
+where $g(\etab,\xb) = \yb^\top \xb + \eta_0 \one^\top \xb + \eta_1 \xb^\top \Delta \xb - \eta_0 k - \eta_1 \rho$.
+Let us focus on solving the program,
+\[
+D(\etab) = \min_{\xb \in \{0,1\}^p} \yb^\top \xb + \eta_0 \one^\top \xb + \eta_1 \xb^\top \Delta \xb - \eta_0 k - \eta_1 \rho
+\]
+Because this is a minimum cut problem with an additional modular term, which is the same form as the MRF energy, this is solvable by graph cuts.
+By the combinatorial duality of min cut this is equivalent to 
+\[
+M(\etab) = \max_{\fb \in \RR^{m + p}} \sum_{i \in [p]} f(s \rightarrow i) \textrm{ s.t. } \nabla^\top \fb = 0, \fb \le \cbb
+\]
+where $\nabla$ is the incidence matrix for the original graph $G$, the flow $\fb$ is over a modified graph with additional nodes $s,t$, and the capacitances are $c(i\rightarrow j) = \eta_1 w_{i,j}$ for $i,j$ in the graph, $c(s \rightarrow i) = (\eta_0 + y_i)_-$ and $c(i \rightarrow t) = (\eta_0 + y_i)_+$.
+If in the final cut $i$ is connected to $s$ then $x_i = 1$ and $0$ otherwise.
+Specifically, the Lagrangian dual is equal to 
+\[
+D(\etab) = - \sum_{i \in [p]} (y_i)_- + M(\etab) - \eta_0 k - \eta_1 \rho
+\]
+We can thus using residual flows ascertain the instantaneous effect of changing $\etab$ and thus compute gradients of the concave function $M(\etab)$.
+
+Let us decompose the edges in the modified graph into $E_s, E_t, E$ the edges adjacent to $s$, $t$, and those of the original graph respectively.
+Suppose that a flow $\fb^\star$ is the maximizer of $M(\etab)$, then let $B$ be the edges such that the flow equals the capacitance in the modified graph.
+In the case that $B \subseteq E$ then we can change $\eta_1$ to $\eta_1'$ (as long as $\eta_1'$ is close enough to $\eta_1$) and then $\fb^\star$ may change to $\frac{\eta_1'}{\eta_1} \fb^\star = \eta_1' \Wb_B$ and the resulting flow is the maximizer of $M(\etab)$.
+If on the other hand there are edges adjacent to $s$ or $t$ in $B$ then we must consider the following.
+Let $\sum_{s\rightarrow i \in B} f^\star(s \rightarrow i) = \textrm{cflow}(s) = \sum_{s\rightarrow i \in B} (\eta_0 + y_i)_-$ and $\sum_{i\rightarrow t \in B} f^\star(i \rightarrow t) = \textrm{cflow}(t) = \sum_{i\rightarrow t \in B} (\eta_0 + y_i)_+$, then if $\eta_0$ is changed by a small enough amount (to $\eta_0'$), the flow is equal to the minimum of $\sum_{i\rightarrow t \in B} (\eta_0' + y_i)_-$ and $\sum_{s\rightarrow i \in B} (\eta_0 + y_i)_+$.
+Hence, if $\textrm{cflow}(s) < \textrm{cflow}(t)$ then a change in $\eta_0$ by $\partial \eta_0$ would result in a change in $M(\etab)$ by $-|B \cap E_s| \partial \eta_0$, and if $\textrm{cflow}(s) > \textrm{cflow}(t)$ the same change would result in a change in $M(\etab)$ by $|B \cap E_t| \partial \eta_0$.
+In the case of equality then the change would be the difference $(|B \cap E_t| - |B \cap E_s|) \partial \eta_0$.
+
+

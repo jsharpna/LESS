@@ -1,0 +1,43 @@
+\documentclass{article}
+
+\usepackage{mkolar_definitions}
+\usepackage{natbib,authblk,subfigure}
+
+\makeatletter
+\let\pen\@undefined
+\newcommand{\pen}{\rho}
+\makeatother
+
+\newcommand{\supp}{{\rm supp}}
+
+\begin{document}
+
+\title{Near-optimal anomaly detection in graphs}
+
+\author[1,3]{
+James Sharpnack
+\thanks{jsharpna@cs.cmu.edu}}
+\author[2]{
+Akshay Krishnamurthy
+\thanks{akshaykr@cs.cmu.edu}}
+\author[1]{
+Aarti Singh
+\thanks{aarti@cs.cmu.edu}
+}
+\affil[1]{Machine Learning Department\\
+Carnegie Mellon University}
+\affil[2]{Computer Science Department\\
+Carnegie Mellon University}
+\affil[3]{Statistics Department\\
+Carnegie Mellon University}
+
+\maketitle
+
+\input{abstract.tex}
+\input{detector.tex}
+\input{lower.tex}
+
+\bibliographystyle{plainnat}
+\bibliography{biblio}
+
+\end{document} 

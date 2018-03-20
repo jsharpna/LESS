@@ -1,0 +1,211 @@
+\section{Appendix}
+
+Let us introduce the following notation: $W(A \rightarrow B)$ is the total weight of edges with a tail in $A$ and a head in $B \backslash A$.
+
+\begin{proposition}
+\begin{enumerate}
+\item $\out$ is submodular.
+\item The Lov\'asz extension of $\out$ is $f(\omega) = \| (\nabla \omega)_+ \|$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+
+{\em 1.} Let us partition all of the relevant edges: $w_1 = W(A\backslash B \rightarrow \overline {A \cup B}), w_2 = W(A \cap B \rightarrow \overline {A \cup B}), w_3 = W(B\backslash A \rightarrow \overline{A \cup B}), w_4 = W(A\backslash B \rightarrow B \backslash A), w_5 = W(B \backslash A \rightarrow A \backslash B), w_6 = W(A \cap B \rightarrow A \backslash B), w_7 = W(A \cap B \rightarrow B \backslash A)$.
+Let us then evaluate $out$,
+\[
+\begin{aligned}
+\out(A) + \out(B) = (w_1 + w_2 + w_4 + w_7) + ( w_3 + w_2 + w_5 + w_6) \\
+\ge (w_1 + w_2 + w_3) + (w_2 + w_6 + w_7) = \out(A \cup B) + \out(A \cap B)
+\end{aligned}
+\]
+{\em 2.} Let $f$ be the Lov\'asz extension of $\out$.
+Let $\xb \in \RR^p$, and $\{j_i\}_{i = 1}^p$ be such that $x_{j_i} > x_{j_{i + 1}}$.
+Furthermore, let $C_i = \{j_k: k > i\}$.
+Then, we see that $f$ takes the form,
+\[
+f(\xb) = \sum_{i=1}^p x_{j_i} [W(\{j_i\} \rightarrow \bar C_i) - W(C_i \rightarrow \{ j_i \}) ]
+\]
+Let us consider then the components attributable to the edge $(j_i,j_k)$; these are $W_{j_i,j_k} (x_{j_i} I(i < k) - x_{j_k} I(i < k)) = W_{j_i,j_k} (x_{j_i} - x_{j_k})_+$ because there is no contribution if $j_k \notin C_i$.
+This gives us our result.
+\end{proof}
+
+\begin{proof}[Proof of Proposition \ref{prop:less_alg}]
+We begin with the LESS form in \eqref{eq:less},
+\[
+\hat l = \max_{t \in [p], \xb} \frac{\xb^\top \yb}{\sqrt{t}} \textrm{ s.t. } \xb \in \Xcal(\rho,t) = \{ \xb \in [0,1]^p : \| (\nabla \xb)_+ \|_1 \le \rho, \one^\top \xb \le t \}
+\]
+Define Lagrangian parameters $\etab \in \RR_+^2$ and the Lagrangian function, $L(\etab, \xb) = \xb^\top \yb - \eta_0 \xb^\top \one - \eta_1 \|(\nabla \xb)_+ \|_1 + \eta_0 t + \eta_1 \rho$ and notice that it is convex in $\etab$ and concave in $\xb$.
+Also, the domain $[0,1]^p$ is bounded and each domain of $L$ is non-empty closed and convex.
+\[
+\begin{aligned}
+&\max_{\xb \in [0,1]^p} \inf_{\etab \in \RR_+^2} L(\etab, \xb) = \inf_{\etab \in \RR_+^2} \max_{\xb \in [0,1]^p} L(\etab, \xb)
+\end{aligned}
+\]
+This follows from a saddlepoint result in \cite{rockafellar1997convex} (p.393 Cor.~37.3.2).
+All that remains is to notice that $-\xb^\top \yb + \eta_0 \xb^\top \one + \eta_1 \|(\nabla \xb)_+ \|_1$ is the Lov\'asz extension of $-\xb^\top \yb + \eta_0 \xb^\top \one + \eta_1 \out(\xb)$ for $\xb \in \{0,1\}^p$.
+Hence, by Proposition \ref{prop:submod}, there exists a minimizer that lies within $\{0,1\}^p$, and so 
+\[
+\inf_{\etab \in \RR_+^2} \max_{\xb \in [0,1]^p} L(\etab, \xb) = \inf_{\etab \in \RR_+^2} g(\eta_0,\eta_1) + \eta_0 k + \eta_1 \rho
+\]
+This follows from the fact that $\| (\nabla \xb)_+ \|_1$ is equal to $\out(\xb)$ for $\xb \in \{0,1\}^p$. 
+The program $g$ takes the form of a modular term and a cut term, which is solvable by graph cuts \cite{cormen2001introduction}.
+\end{proof}
+
+
+\subsection{Proof of Theorem \ref{thm:main}}
+We will begin by establishing some facts about uniform spanning trees (UST).
+In a directed graph, a spanning tree is a tree in the graph that contains each vertex such that all the vertices but one (the root) are tails of edges in the tree.
+If the directed graph is not connected (i.e.~ there are two vertices such that there is no directed path between them) then we would have to generalize our results to a spanning forest.
+We will therefore assume this is not the case, for ease of presentation.
+Notice that in the case that we have a weighted graph, then the UST makes the probability of selecting a tree $\Tcal$ proportional to the product of the constituent edge weights.
+\begin{lemma}{\cite{fung2010graph}}
+\label{lem:UST_conc}
+Let $a_e \in [0,1], \forall e \in E$ and let $\Tcal$ be a draw from the UST.  If $Z = \sum_{e \in E} a_e I\{e \in \Tcal\}$, for any $\delta \in (0,1)$,
+\[
+\PP \{ Z \ge (1 + \delta) \EE Z\} \le \left( \frac{e^\delta}{(1 + \delta)^{1 + \delta}}\right)^{\EE Z}
+\]  
+\end{lemma}
+
+This implies that with probability $1 - \alpha$, $Z \le (\sqrt{\EE Z} + \sqrt{\log (1 / \alpha)})^2$ \cite{sharpnack2012detecting}.
+Moreover, the probability that an edge is included in $\Tcal$ is its effective resistance times the edge weight, $\PP \{e \in \Tcal \} = W_e r_e$ \cite{lyons2000probability}.
+
+\begin{proof}[Proof of Theorem \ref{thm:main} (1)]
+
+In the following proof, for some class $\Acal \in 2^{[p]}$, let $g(\Acal) = \EE \sup_{A \in \Acal} \frac{\one_A^\top \xi}{\sqrt{|A|}}$ (this is known as a Gaussian complexity).
+Furthermore let $\nabla_\Tcal$ be the incidence matrix restricted to the edges in $\Tcal$ (note that this is an unweighted directed graph).
+Let $\Ccal(\Tcal) = \{C \subset [p] : \|(\nabla_\Tcal \one_C)_+\|_1 \le (\sqrt{r_\Ccal} + \sqrt{\log 1/\delta})^2 \}$ and $\delta > 0$ then under the UST for any $C$, $\PP_\Tcal \{C \notin \Ccal(\Tcal)\} \le \delta$. (This follows from Lemma \ref{lem:UST_conc}.)
+\[
+\begin{aligned}
+\EE_\xi \sup_{C \in \Ccal} \frac{\xi^\top \one_C}{\sqrt{|C|}} = \EE_\xi \sup_{C \in \Ccal} \EE_\Tcal  \frac{\xi^\top \one_C}{\sqrt{|C|}} \left[ \one\{ C \in \Ccal(\Tcal) \} + \one\{ C \notin \Ccal(\Tcal) \} \right] \\
+\le \EE_\xi \sup_{C \in \Ccal} \left[ \EE_\Tcal \one\{ C \in \Ccal(\Tcal) \} \sup_{C' \in \Ccal(\Tcal)}  \frac{\xi^\top \one_{C'}}{\sqrt{|C'|}}
++ \EE_\Tcal \one\{ C \notin \Ccal(\Tcal) \} \sup_{C' \in 2^{[p]}} \frac{\xi^\top \one_C'}{\sqrt{|C'|}} \right]\\
+\le \EE_\xi \sup_{C \in \Ccal} \left[ \EE_\Tcal \sup_{C' \in \Ccal(\Tcal)}  \frac{\xi^\top \one_{C'}}{\sqrt{|C'|}}
++ \EE_\Tcal \one\{ C \notin \Ccal(\Tcal) \} \sup_{C' \in 2^{[p]}} \frac{\xi^\top \one_C'}{\sqrt{|C'|}} \right]\\
+\le \EE_\xi  \left[ \EE_\Tcal \sup_{C' \in \Ccal(\Tcal)}  \frac{\xi^\top \one_{C'}}{\sqrt{|C'|}}
++ \sup_{C \in \Ccal} \PP_\Tcal \{ C \notin \Ccal(\Tcal) \} \sup_{C' \in 2^{[p]}} \frac{\xi^\top \one_C'}{\sqrt{|C'|}} \right]\\
+\le \EE_\Tcal g(\Ccal(\Tcal)) + g(2^{[p]}) \sup_{C \in \Ccal} \PP_\Tcal \{ C \notin \Ccal(\Tcal) \} 
+\end{aligned}
+\]
+
+For any $\Tcal$, $|\Ccal(\Tcal)| \le (p - 1)^{(\sqrt{r_\Ccal} + \sqrt{\log 1/\delta})^2}$ because $\Tcal$ is unweighted.
+By Gaussianity and the fact that $\EE (\one_C^\top \xi / \sqrt{|C|})^2 = 1$,
+\[
+g(\Ccal(\Tcal)) \le \sqrt{2 \log |\Ccal(\Tcal)|} \le \sqrt{2 (\sqrt{r_\Ccal} + \sqrt{\log 1/\delta})^2 \log (p-1)}
+\]
+Furthermore, $g(2^{[p]}) \le a \sqrt{p}$ where $a = \sqrt{2 \log 2}$.
+Setting $\delta = p^{-1/2}$ we have the following bound on the Gaussian complexity,
+\[
+g(\Ccal) \le (\sqrt{r_\Ccal} + \sqrt{\frac{1}{2} \log p})\sqrt{2 \log (p-1)} + a
+\]
+By Cirelson's theorem \cite{ledoux2001concentration}, with probability at least $1 - \alpha$,
+\[
+\sup_{C \in \Ccal} \frac{\xi^\top \one_C}{\sqrt{|C|}} \le g(\Ccal) + \sqrt{2 \log (1 / \alpha)}
+\]
+\end{proof}
+
+
+\begin{proof}[Proof of Theorem \ref{thm:main} (2)]
+
+Let $\Xcal(\Tcal) = \{ \xb \in [0,1]^p : \| (\nabla_\Tcal \xb)_+ \|_1 \le (\sqrt{r_\Xcal} + \sqrt{\log 1 / \delta} )^2 \}$.
+It remains the case that, by the previous Lemma \ref{lem:UST_conc}, $\PP \{ \| (\nabla_\Tcal \xb)_+ \|_1 \ge (\sqrt{r_\Xcal} + \sqrt{\log 1 / \delta} )^2 \} \le \delta$ , where $r_\Xcal = \{ \max {\sum_{(j,i) \in E} W_e r_e (x_i - x_j)_+ : \xb \in \Xcal}\}$.
+\[
+\begin{aligned}
+\EE_\xi \hat l = \EE_\xi \sup_{t \in [p],\xb \in \Xcal(\rho,t)} \frac{\xi^\top \xb}{\sqrt{t}} = \EE_\xi \sup_{t \in [p],\xb \in \Xcal(\rho,t)} \EE_\Tcal  \frac{\xi^\top \xb}{\sqrt{t}} \left[ \one\{ \xb \in \Xcal(\Tcal) \} + \one\{ \xb \notin \Xcal(\Tcal) \} \right] \\
+\le \EE_\xi \sup_{t \in [p],\xb \in \Xcal(\rho,t)} \left[ \EE_\Tcal \one\{ \xb \in \Xcal(\Tcal) \} \sup_{\xb' \in \Xcal(\Tcal), \one^\top \xb' \le t}  \frac{\xi^\top \xb'}{\sqrt{t}}
++ \EE_\Tcal \one\{ \xb \notin \Xcal(\Tcal) \} \sup_{\xb' \in [0,1]^p, \one^\top \xb' \le t} \frac{\xi^\top \xb'}{\sqrt{t}} \right]\\
+\le \EE_\xi \sup_{t \in [p],\xb \in \Xcal(\rho,t)} \left[ \EE_\Tcal \sup_{\xb' \in \Xcal(\Tcal), \one^\top \xb' \le t}  \frac{\xi^\top \xb'}{\sqrt{t}}
++ \EE_\Tcal \one\{ \xb \notin \Xcal(\Tcal) \} \sup_{\xb' \in [0,1]^p, \one^\top \xb' \le t} \frac{\xi^\top \xb'}{\sqrt{t}} \right]\\
+\le \EE_\Tcal \EE_\xi \sup_{t \in [p], \xb \in \Xcal(\Tcal), \one^\top \xb \le t}  \frac{\xi^\top \xb}{\sqrt{t}}
++ \sup_{\xb \in \Xcal(\rho)} \PP_\Tcal \{ \xb \notin \Xcal(\Tcal) \} \EE_\xi \sup_{t \in [p], \xb \in [0,1]^p, \one^\top \xb \le t} \frac{\xi^\top \xb}{\sqrt{t}} \\
+\end{aligned}
+\]
+These follow from Jensen's inequality and Fubini's theorem.
+\begin{claim}
+\[
+\EE_\xi \sup_{t \in [p],\xb \in [0,1]^p, \one^\top \xb \le t} \frac{\xi^\top \xb}{\sqrt{t}} \le \sqrt{2 p \log 2}
+\]
+\end{claim}
+
+We will proceed to prove the above claim.  In words it follows from the fact that solutions to the program are integral by the generic chaining.
+\[
+\begin{aligned}
+\EE_\xi \sup_{t \in [p],\xb \in [0,1]^p, \one^\top \xb \le t} \frac{\xi^\top \xb}{\sqrt{t}} = \EE_\xi \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in [0,1]^p: \one^\top \xb \le t} \xi^\top \xb \\
+= \EE_\xi \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in \{0,1\}^p: \one^\top \xb \le t} \xi^\top \xb = \EE_\xi \sup_{\xb \in \{0,1\}^p} \frac{\xi^\top \xb}{\| \xb\|} \le \sqrt{2 p \log 2}\\
+\end{aligned}
+\]
+The second equality holds because the solution to the optimization with $t$ fixed is the top $t$ coordinates of $\xi$.
+The third equality holds because $\xb \in \{0,1\}^p$ and so $\one^\top \xb$ is integer.  Hence, if $\xb$ is a solution for the objective with $t$ fixed and $\one^\top \xb < t$ then it holds for the objective with $t-1$, and the overall objective is increased.
+Thus at the optimum, $\| \xb \| = \sqrt{\one^\top \xb} = \sqrt{t}$.
+
+\begin{claim}
+Denote $r = (\sqrt{r_\Xcal} + \sqrt{\frac 12 \log p} )^2$.
+For any spanning tree $\Tcal$,
+\[
+\EE_\xi \sup_{t \in [p], \xb \in \Xcal(\Tcal), \one^\top \xb \le t}  \frac{\xi^\top \xb}{\sqrt{t}} \le \frac{\log (2p)+1}{\sqrt{r \log p} } + 2 \sqrt{r \log p}
+\]
+\end{claim}
+
+This will follow from weak duality and a clever choice of dual parameters.
+
+\[
+\begin{aligned}
+\sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in \Xcal(\Tcal), \one^\top \xb \le t}  \xi^\top \xb\\
+= \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in [0,1]^p} \inf_{\eta \ge 0} \xi^\top \xb - \eta_0 \one^\top \xb - \eta_1 \|(\nabla_\Tcal \xb)_+ \|_1 + \eta_0 t + \eta_1 r\\
+\le \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in \{0,1\}^p} \xi^\top \xb - \one^\top \xb \sqrt{\frac{r}{t} \log p} - \|(\nabla_\Tcal \xb)_+ \|_1 \sqrt{\frac{t}{r} \log p} + 2 \sqrt{rt \log p}
+\end{aligned}
+\]
+The above display follows by selecting $\eta_0 = \sqrt{\frac rt \log p}$ and $\eta_1 = \sqrt{\frac tr \log p}$ and using Prop.~\ref{prop:submod}.
+\[
+\begin{aligned}
+= \sup_{k \in [p]} \sup_{\xb \in \{0,1\}^p : \out(\xb) = k} \sup_{t \in [p]} \frac{\xi^\top \xb}{\sqrt t} - \frac{\one^\top \xb}{t} \sqrt{r \log p} - k \sqrt{\frac{1}{r} \log p} + 2 \sqrt{r \log p}\\
+\le \sup_{k \in [p]} \sup_{\xb \in \{0,1\}^p : \out(\xb) = k} \frac{(\xi^\top \xb)^2}{4 \| \xb \|^2 \sqrt{r \log p}} - k \sqrt{\frac{1}{r} \log p} + 2 \sqrt{r \log p}\\
+\end{aligned}
+\]
+The above display follows from the fact that for any $a,b > 0$, $\sup_{t \in \RR} a t - b t^2 = a^2 / (4b)$.
+We know that with probability at least $1 - \alpha$ for all $k \in [p]$,
+\[
+\sup_{\xb \in \{0,1\}^p, \out(\xb) = k} \left| \frac{\xi^\top \xb}{\| \xb \|} \right| \le \sqrt{2 k \log p} + \sqrt{2 \log (2p / \alpha)}
+\]
+So we can bound the above,
+\[
+\begin{aligned}
+\sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in \Xcal(\Tcal), \one^\top \xb \le t}  \xi^\top \xb \le \sup_{k \in [p]} \frac{(\sqrt{2 k \log p} + \sqrt{2 \log (2p / \alpha)})^2}{4 \sqrt{r \log p}} - k \sqrt{\frac{1}{r} \log p} + 2 \sqrt{r \log p}\\
+= \sup_{k \in [p]} \frac{\sqrt{k \log (2p / \alpha)}}{\sqrt{r}} - \frac{k}{2} \sqrt{\frac{\log p}{r}} + \frac{\log(2p / \alpha)}{2\sqrt{r \log p}} + 2 \sqrt{r \log p}\\ 
+\le \frac{\log (2p / \alpha)}{2 \sqrt{r \log p} } + \frac{\log(2p / \alpha)}{2\sqrt{r \log p}} + 2 \sqrt{r \log p}\\ 
+= \frac{\log (2p / \alpha)}{\sqrt{r \log p} } + 2 \sqrt{r \log p}\\ 
+\end{aligned}
+\]
+Any random variable $Z$ that satisfies $Z \le a + b\log(1/\alpha)$ with probability $1 - \alpha$ for any $\alpha > 0$ for $a,b \ge 0$ also satisfies $\EE Z \le a + b$. 
+Hence,
+\[
+\EE_\xi \sup_{t \in [p]} \frac 1{\sqrt{t}} \sup_{\xb \in \Xcal(\Tcal), \one^\top \xb \le t}  \xi^\top \xb \le \frac{\log (2p) + 1}{\sqrt{r \log p} } + 2 \sqrt{r \log p}\\ 
+\]
+Combining all of these results and using Cirelson's theorem \cite{ledoux2001concentration},
+\[
+\begin{aligned}
+\hat l \le \frac{\log (2p) + 1}{\sqrt{ \left(\sqrt{r_\Xcal} + \sqrt{\frac 12 \log p} \right)^2 \log p} } + 2 \sqrt{\left(\sqrt{r_\Xcal} + \sqrt{\frac 12 \log p} \right)^2 \log p} \\
++ \sqrt{2 \log 2} + \sqrt{2 \log( 1 / \alpha)}
+\end{aligned}
+\]
+
+All that remains to be show is that $r_\Xcal = r_\Ccal$.
+This can be seen by constructing the level sets of $\xb \in [0,1]^p$ and noticing that $\sum_{(i,j) \in E} W_e r_e (x_j - x_i)_+$ is piecewise linear in the levels.
+Thus, we can draw a contradiction from the supposition that the levels are not in $\{0,1\}$.
+\end{proof}
+
+
+\begin{proof}[Proof of Corollary \ref{cor:main}]
+
+We will argue that with high probability, under $H_1$ the GSS and LESS are large.
+For the analysis of both the GSS and the LESS, let 
+\[
+\xb^* = \one_C, \quad t^* = |C|
+\]
+Then both the GSS and LESS are lower bounded by
+\[
+\frac{\one^\top_C \yb}{\sqrt{|C|}} = \mu + \frac{\one^\top_C \xi}{\sqrt{|C|}} \sim \Ncal(\mu,1)
+\]
+Hence, under $H_1$, with probability $1 - \alpha$, the GSS and LESS are larger than $\mu - \sqrt{2 \log (1 / \alpha)}$.
+The Corollary follows by comparing this to the guarantee in Theorem \ref{thm:main}.
+\end{proof}

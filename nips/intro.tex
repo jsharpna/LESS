@@ -1,0 +1,99 @@
+\vspace{-.2cm}
+\section{Introduction}
+\vspace{-.2cm}
+Anomaly detection is the problem of determining if we are observing merely noise (business as usual) or if there is some signal in the noise (anomalous activity).
+Classically, research has focused on identifying rare behaviors and aberrant bursts in activity over a single data source or channel.
+With the advent of large surveillance projects, social networks, and mobile computing, data sources often are high-dimensional and have a network structure. 
+With this in mind, statistics needs to comprehensively address the detection of anomalous activity in graphs.
+In this paper, we will study the detection of elevated activity in a graph with Gaussian noise.
+
+In reality, very little is known about the detection of activity in graphs, despite a variety of real-world applications to social networks, network surveillance, disease outbreak detection, biomedical imaging, sensor network detection, gene network analysis, environmental monitoring and malware detection.
+Sensor networks might be deployed for detecting nuclear substances, water contaminants, or activity in video surveillance.
+By exploiting the sensor network structure (based on proximity), one can detect activity in networks when the activity is very faint.
+Recent theoretical contributions in the statistical literature\cite{arias2011detection,addario2010combinatorial} have detailed the inherent difficulty of such a testing problem but have positive results only under restrictive conditions on the graph topology.
+By combining knowledge from high-dimensional statistics, graph theory and mathematical programming, the characterization of detection algorithms over any graph topology by their statistical properties is possible.
+
+Aside from the statistical challenges, the computational complexity of any proposed algorithms must be addressed.
+Due to the combinatorial nature of graph based methods, problems can easily shift from having polynomial-time algorithms to having running times exponential in the size of the graph.
+The applications of graph structured inference require that any method be scalable to large graphs.
+As we will see, the ideal statistical procedure will be intractable, suggesting that approximation algorithms and relaxations are necessary.
+%Before we elaborate on the statistical setup, we will examine two real-world examples in which one detects graph structured signals.
+
+%One example of a real-world application of anomaly detection in graphs, is detecting activity in sensor networks.
+%When sensors are placed in an environment for the sake of detecting and localizing some activity, the structure inherent in that environment should influence the statistical inference.
+%The spread of a contaminant in water changes greatly when the environment is the Gulf of Mexico (as in the Deepwater Horizon oil spill) or a water supply network.
+%Water supply contamination is a common cause for outbreaks of cholera, gastroenteritis, E.~coli, and polio.
+%Because of the potential for large scale health problems, it is of interest to detect contaminated water under low signal-to-noise regimes.
+%As we will see, by exploiting the sensor network structure, one can detect activity in networks when the activity is very faint.
+%Furthermore, the graph structure provides a versatile framework for modeling environmental constraints.
+% Another application is medical screening in human populations.
+% Many common experimental techniques in virology report various indicators of a virus, such as antibody protein concentrations (western blot, enzyme-linked immunosorbent assay) or measuring virus concentrations directly (the plaque assay).
+% %One popular method, the western blot, reports concentrations by the shade of bands from an x-ray film darkened by a luminescent compound \cite{towbin1979electrophoretic}.
+% Infectious diseases diffuse within human networks, so if we can exploit the network structure between individuals in the detection of infectious diseases, then we may be able to detect an incipient infection under low signal-to-noise ratios.
+\vspace{-.1cm}
+\subsection{Problem Setup}
+\vspace{-.1cm}
+Consider a connected, possibly weighted, directed graph $G$ defined by a set of vertices $V$ ($|V| = p$) and directed edges $E$ ($|E| = m$) which are ordered pairs of vertices.
+Furthermore, the edges may be assigned weights, $\{ W_e \}_{e \in E}$, that determine the relative strength of the interactions of the adjacent vertices.
+For each vertex, $i \in V$, we assume that there is an observation $y_i$ that has a Normal distribution with mean $x_i$ and variance $1$.
+This is called the graph-structured normal means problem, and we observe one realization of the random vector
+\begin{equation}
+\label{eq:normal_means}
+\yb = \xb + \xib,
+\end{equation}
+where $\xb \in \RR^p$, $\xib \sim N(0,\Ib_{p\times p})$.
+The signal $\xb$ will reflect the assumption that there is an active cluster ($C \subseteq V$) in the graph, by making $x_i > 0$ if $i \in C$ and $x_i = 0$ otherwise. 
+Furthermore, the allowable clusters, $C$, must have a small boundary in the graph.
+%In this way, the structure of activation pattern $\xb$ is determined by the graph $G$. 
+Specifically, we assume that there are parameters $\rho, \mu$ (possibly
+dependent on $p$) such that the class of graph-structured activation patterns
+$\xb$ is given as follows.
+\[
+\Xcal = \left\{\xb : \xb = \frac {\mu}{\sqrt{|C|}} \one_C, C \in \Ccal\right\}, \quad \Ccal = \left\{ C \subseteq V : \out(C) \le \rho \right\}
+\]
+Here $\out(C) = \sum_{(u,v)\in E} W_{u,v} I\{ u \in C, v \in \bar C \}$ is the total weight of edges leaving the cluster $C$.
+In other words, the set of activated vertices $C$ have a small {\em cut size} in the graph $G$.
+While we assume that the noise variance is $1$ in Equation \eqref{eq:normal_means}, this is equivalent to the more general model in which $\EE \xi_i^2 = \sigma^2$ with $\sigma$ known.
+If we wanted to consider known $\sigma^2$ then we would apply all our algorithms to $\yb / \sigma$ and replace $\mu$ with $\mu / \sigma$ in all of our statements.
+For this reason, we call $\mu$ the signal-to-noise ratio (SNR), and proceed with $\sigma = 1$.
+
+In graph-structured activation detection we are concerned with statistically testing the null against the alternative hypotheses,
+\vspace{-.25cm}
+\begin{eqnarray}
+\begin{aligned}
+H_0:&\ \yb \sim N(\zero,\Ib) \\
+H_1:&\ \yb \sim N(\xb,\Ib), \xb \in \Xcal\\
+\end{aligned}
+\label{eq:main_problem}
+\end{eqnarray}
+$H_0$ represents business as usual (such as sensors returning only noise) while $H_1$ encompasses all of the foreseeable anomalous activity (an elevated group of noisy sensor observations).
+%% To foreshadow, the theoretical difficulty arises because $H_1$ is composite.
+Let a test be a mapping $T(\yb) \in \{0,1\}$, where $1$ indicates that we reject the null.
+It is imperative that we control both the probability of false alarm, and the false acceptance of the null.
+To this end, we define our measure of risk to be
+\[
+R(T) = \EE_{\zero} [T] + \sup_{\xb \in \Xcal} \EE_\xb [1 - T]
+\]
+where $\EE_\xb$ denote the expectation with respect to $\yb \sim N(\xb,\Ib)$.
+These terms are also known as the probability of type 1 and type 2 error respectively. 
+This setting should not be confused with the Bayesian testing setup (e.g.~as considered in \cite{addario2010combinatorial,arias2008searching}) where the patterns, $\xb$, are drawn at random.
+We will say that $H_0$ and $H_1$ are {\em asymptotically distinguished} by a test, $T$, if 
+in the setting of large graphs, $\lim_{p \rightarrow \infty} R(T) = 0$.
+If such a test exists then $H_0$ and $H_1$ are {\em asymptotically distinguishable}, otherwise they are {\em asymptotically indistinguishable} (which occurs whenever the risk does not tend to $0$).   
+We will be characterizing regimes for $\mu$ in which our test asymptotically distinguishes $H_0$ from $H_1$.
+%There may be regimes for $\mu$ in which no test achieves distinguishability $R(T) \rightarrow c$ for some $c \in (0,1)$, and the problem is considered asymptotically indistinguishable (by definition). 
+
+Throughout the study, let the {\em edge-incidence matrix} of $G$ be $\nabla \in \RR^{m \times p}$ such that for $e = (v,w) \in E$, $\nabla_{e,v} = -W_e$, $\nabla_{e,w} = W_e$ and is $0$ elsewhere.
+For directed graphs, vertex degrees refer to $d_v = \out(\{v\})$.
+Let $\|.\|$ denote the $\ell_2$ norm, $\|.\|_1$ be the $\ell_1$ norm, and $(\xb)_+$ be the positive components of the vector $\xb$.
+Let $[p] = \{1,\ldots,p\}$, and we will be using the $o$ notation, namely if non-negative sequences satisfy $a_n / b_n \rightarrow 0$ then $a_n = o(b_n)$ and $b_n = \omega(a_n)$.
+\vspace{-.1cm}
+\subsection{Contributions}
+\vspace{-.1cm}
+Section~\ref{sec:related} highlights what is known about the hypothesis testing problem (Eq.~\ref{eq:main_problem}), particularly we provide a regime for $\mu$ in which $H_0$ and $H_1$ are asymptotically indistinguishable.
+In section~\ref{sec:graph_scan}, we derive the graph scan statistic from the generalized likelihood ratio principle which we show to be a computationally intractable procedure.
+In section~\ref{sec:less}, we provide a relaxation of the graph scan statistic (GSS), the Lov\'asz extended scan statistic (LESS), and we show that it can be computed with successive minimum $s-t$ cut programs (a graph cut that separates a source vertex from a sink vertex).
+In section~\ref{sec:theory}, we give our main result, Theorem~\ref{thm:main}, that provides a type 1 error control for both test statistics, relating their performance to electrical network theory.
+In section~\ref{sec:examples}, we show that GSS and LESS can asymptotically distinguish $H_0$ and $H_1$ in signal-to-noise ratios close to the lowest possible for some important graph models. 
+All proofs are in the Appendix.
+

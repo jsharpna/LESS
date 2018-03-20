@@ -1,0 +1,50 @@
+\section{Experiments}
+
+%We have provided a path algorithm for our statistic, $\hat C$, which was motivated from first principles.
+We will now conclude with an empirical study of the effectiveness of Algorithm \ref{alg:flowpath} on some simulations.
+Notice that a specific max flow algorithm was not prescribed when computing the gradient flow.
+In our implementation, we use the Edmonds-Karp algorithm, in which residual flows are found using breadth-first search.
+More recently, a dual-decomposition algorithm has been developed in order to parallelize the computation of the MAP estimator for binary MRFs \cite{strandmark2010parallel,sontag2011introduction}.
+
+\begin{figure*}
+\centering{
+\includegraphics[width=4cm]{rect_n=15_true.eps}\hspace{1cm}
+\includegraphics[width=4cm]{rect_n=15_noisy.eps}\hspace{1cm}
+\includegraphics[width=4cm]{rect_n=15_hat.eps}}
+\caption{The undirected $25 \times 25$ lattice graph was used with a $4 \times 4$ rectangular region $C^\star$ (left).  The signal size used was $\mu = 2.35$ with $\sigma = 1$ ($\yb$ is depicted in the middle).  The best reconstruction is displayed (right).}
+\label{fig1}
+%\vspace{-.25cm}
+\end{figure*}
+
+
+\begin{figure*}
+\centering{
+\includegraphics[width=4cm]{dir_n=15_true.eps}\hspace{1cm}
+\includegraphics[width=4cm]{dir_n=15_noisy.eps}\hspace{1cm}
+\includegraphics[width=4cm]{dir_n=15_hat.eps}}
+\caption{A directed graph (depicted by the arrows) was constructed with edges between all $8$ neighboring blocks in which more weight is on edges that descend to the right.  A region was chosen that has a low cut size (left).  The signal size is $\mu = 1.75$ and $\sigma = 1$ ($\yb$ is depicted in the middle).  The best reconstruction is displayed (right).}
+\label{fig2}
+\vspace{-.25cm}
+\end{figure*}
+
+\begin{figure*}
+\centering{
+\includegraphics[width=5.5cm]{rect_n=15_MSE_path.eps}
+\includegraphics[width=5.5cm]{dir_n=15_MSE_path.eps}}
+\caption{MSE as a function of regularization parameter $\nu$.  The lattice graph example is left and the directed graph example is right.}
+\label{fig3}
+\vspace{-.25cm}
+\end{figure*}
+
+We construct an undirected, unweighted lattice graph by identifying each vertex with a square in a $15 \times 15$ grid, and adjoining vertices that share an side of the square with weight $1$.
+A $4 \times 4$ rectangle was constructed to be $C^\star$ and the signal size $\mu = 2.35$ with noise level $\sigma = 1$. (Figure \ref{fig1} depicts the cluster, noisy observations and reconstruction.)
+The smallest MSE (Hamming distance between $C^\star$ and $\hat C$) in the regularization path was $2$. (The MSE throughout the regularization path is given in Figure \ref{fig3} (left)).
+
+We form a weighted directed graph by associating the vertices to squares in a grid ($\{(i,j) : i, j \in [15]\}$) such that $(i_1,j_1), (i_2,j_2)$ have an edge between them if $|i_1 - i_2| \le 1$ and $|j_1 - j_2| \le 1$.  
+Moreover, the edge weight is equal to $e^{(i_2 - i_1 + j_2 - i_1)/3}$ so that the weight is larger in the direction of the arrows of Figure \ref{fig2}.
+$C^\star$ contains $16$ vertices depicted in Figure \ref{fig2} (left), the signal size is $\mu = 1.75$ and $\sigma = 1$.
+Again the MSE is given in Figure \ref{fig3} (right).
+It has been demonstrated that the RGS can successfully reconstruct the true cluster of activation $C^\star$.
+This can also be done efficiently with the Flow Path algorithm, which gives us the entire regularization path for the RGS.
+The algorithm above is computationally slower than the spanning tree wavelet \cite{sharpnack2012detecting}, but it experimentally dominates it and other pre-existing methods \cite{sharpnack2013near-optimal}.
+%The graph scan statistic and the regularized graph scan are novel because they are able to scan over a combinatorial class of clusters defined using graph cuts.

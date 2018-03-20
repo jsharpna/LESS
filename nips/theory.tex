@@ -1,0 +1,65 @@
+\vspace{-.2cm}
+\section{Theoretical Analysis}
+\label{sec:theory}
+\vspace{-.2cm}
+So far we have developed a lower bound to the hypothesis testing problem, shown that some common detectors do not meet this guarantee, and developed the Lov\'asz extended scan statistic from first principles.
+We will now provide a thorough statistical analysis of the performance of LESS.
+Previously, electrical network theory, specifically the effective resistances of edges in the graph, has been useful in describing the theoretical performance of a detector derived from uniform spanning tree wavelets \cite{sharpnack2012detecting}.
+As it turns out the performance of LESS is also dictated by the effective resistances of edges in the graph.
+
+{\bf Effective Resistance.} Effective resistances have been extensively studied in electrical network theory \cite{lyons2000probability}.
+We define the combinatorial Laplacian of $G$ to be $\Delta = \Db - \Wb$ ($\Db_{v,v} = \out(\{v\})$ is the diagonal degree matrix).
+A {\em potential difference} is any $\zb \in \RR^{|E|}$ such that it satisfies {\em Kirchoff's potential law}: the total potential difference around any cycle is $0$.
+Algebraically, this means that $\exists \xb \in \RR^{p}$ such that $\nabla \xb = \zb$.
+The {\em Dirichlet principle} states that any solution to the following program gives an absolute potential $\xb$ that satisfies Kirchoff's law:
+\[
+\textrm{min}_{\xb} \xb^\top \Delta \xb \textrm{ s.t. } \xb_S = \vb_S
+\]
+for source/sinks $S \subset [p]$ and some voltage constraints $\vb_S \in \RR^{|S|}$.  
+By Lagrangian calculus, the solution to the above program is given by $\xb = \Delta^\dagger \vb$ where $\vb$ is $0$ over $S^C$ and $\vb_S$ over $S$, and $\dagger$ indicates the Moore-Penrose pseudoinverse.
+The effective resistance between a source $v\in V$ and a sink $w\in V$ is the potential difference required to create a unit flow between them. 
+Hence, the effective resistance between $v$ and $w$ is $r_{v,w} = (\delta_v - \delta_w)^\top \Delta^\dagger (\delta_v - \delta_w)$, where $\delta_v$ is the Dirac delta function.
+There is a close connection between effective resistances and random spanning trees.
+The uniform spanning tree (UST) is a random spanning tree, chosen uniformly at random from the set of all distinct spanning trees.
+The foundational Matrix-Tree theorem \cite{kirchhoff1847ueber,lyons2000probability} states that the probability of an edge, $e$, being included in the UST is equal to the edge weight times the effective resistance $W_e r_e$.
+The UST is an essential component of the proof of our main theorem, in that it provides a mechanism for unravelling the graph while still preserving the connectivity of the graph.
+
+We are now in a position to state the main theorem, which will allow us to control the type 1 error (the probability of false alarm) of both the GSS and its relaxation the LESS.
+\begin{theorem}
+\label{thm:main}
+Let $r_\Ccal = \max \{ \sum_{(u,v) \in E : u \in C} W_{u,v} r_{(u,v)} : C \in \Ccal \}$ be the maximum effective resistance of the boundary of a cluster $C$.
+The following statements hold under the null hypothesis $H_0: \xb = \zero$:
+\begin{enumerate}
+\item The graph scan statistic, with probability at least $1 - \alpha$, is smaller than 
+\begin{equation}
+\label{eq:gss_bd}
+\hat s \le \left(\sqrt{r_\Ccal} + \sqrt{\frac{1}{2} \log p}\right)\sqrt{2 \log (p-1)} + \sqrt{2 \log 2} + \sqrt{2 \log (1 / \alpha)}
+\end{equation}
+
+\item The Lov\'asz extended scan statistic, with probability at least $1 - \alpha$ is smaller than
+\begin{equation}
+\label{eq:less_bd}
+\begin{aligned}
+\hat l \le \frac{\log (2p) + 1}{\sqrt{ \left(\sqrt{r_\Ccal} + \sqrt{\frac 12 \log p} \right)^2 \log p} } + 2 \sqrt{\left(\sqrt{r_\Ccal} + \sqrt{\frac 12 \log p} \right)^2 \log p} \\
++ \sqrt{2 \log p} + \sqrt{2 \log (1 / \alpha)}
+\end{aligned}
+\end{equation}
+\end{enumerate}
+\end{theorem}
+
+The implication of Theorem \ref{thm:main} is that the size of the test may be controlled at level $\alpha$ by selecting thresholds given by \eqref{eq:gss_bd} and \eqref{eq:less_bd} for GSS and LESS respectively.
+Notice that the control provided for the LESS is not significantly different from that of the GSS.
+This is highlighted by the following Corollary, which combines Theorem \ref{thm:main} with a type 2 error bound to produce an information theoretic guarantee for the asymptotic performance of the GSS and LESS.
+
+\begin{corollary}
+\label{cor:main}
+Both the GSS and the LESS asymptotically distinguish $H_0$ from $H_1$ if
+\[
+\frac{\mu}{\sigma} = \omega \left( \max\{ \sqrt{r_\Ccal \log p}, \log p\} \right)
+\]
+\end{corollary}
+
+To summarize we have established that the performance of the GSS and the LESS are dictated by the effective resistances of cuts in the graph.
+While the condition in Cor.~\ref{cor:main} may seem mysterious, the guarantee in fact nearly matches the lower bound for many graph models as we now show.
+
+

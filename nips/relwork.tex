@@ -1,0 +1,32 @@
+\vspace{-.2cm}
+\section{Related Work}
+\label{sec:related}
+\vspace{-.2cm}
+{\bf Graph structured signal processing.}
+There have been several approaches to signal processing over graphs.
+Markov random fields (MRF) provide a succinct framework in which the underlying signal is modeled as a draw from an Ising or Potts model \cite{cevher2009sparse,ravikumar2006quadratic}.
+We will return to MRFs in a later section, as it will relate to our scan statistic.
+A similar line of research is the use of kernels over graphs.
+The study of kernels over graphs began with the development of diffusion kernels \cite{kondor2002diffusion}, and was extended through Green's functions on graphs \cite{smola2003kernels}.
+%A related body of work extends marginalized kernels to graphs \cite{kashima2003marginalized,mahe2004extensions}, while recently it has been shown that this and the aforementioned definitions are members of an overarching framework with computationally efficient constructions \cite{vishwanathan2008graph}.
+%Unfortunately, all of these procedures, while related, do not apply directly to the detection of anomalous activity with Gaussian noise.
+While these methods are used to estimate binary signals (where $x_i \in \{0,1\}$) over graphs, little is known about their statistical properties and their use in signal detection.
+To the best of our knowledge, this paper is the first connection made between anomaly detection and MRFs.
+
+{\bf Normal means testing.}
+Normal means testing in high-dimensions is a well established and fundamental problem in statistics. 
+Much is known when $H_1$ derives from a smooth function space such as Besov spaces or Sobolev spaces\cite{ingster1987minimax,ingster2003nonparametric}.
+Only recently have combinatorial structures such as graphs been proposed as the underlying structure of $H_1$.
+A significant portion of the recent work in this area \cite{arias2005nearoptimal, arias2008searching, arias2011detection,addario2010combinatorial} has focused on incorporating structural assumptions on the signal, as a way to mitigate the effect of high-dimensionality and also because many real-life problems can be represented as instances of the normal means problem with graph-structured signals (see, for an example, \cite{jacob2010gains}).
+
+{\bf Graph scan statistics.}
+In spatial statistics, it is common, when searching for anomalous activity to scan over regions in the spatial domain, testing for elevated activity\cite{neill2004rapid,agarwal2006spatial}.
+There have been scan statistics proposed for graphs, most notably the work of \cite{priebe2005scan} in which the authors scan over neighborhoods of the graphs defined by the graph distance.
+Other work has been done on the theory and algorithms for scan statistics over specific graph models, but are not easily generalizable to arbitrary graphs \cite{yi2009unified, arias2011detection}.
+More recently, it has been found that scanning over all well connected regions of a graph can be computationally intractable, and so approximations to the intractable likelihood-based procedure have been studied \cite{sharpnack2012changepoint,sharpnack2012detecting}.
+We follow in this line of work, with a relaxation to the intractable generalized likelihood ratio test.
+
+%{\bf Graph-structured signal recovery.}
+
+%{\bf Graph-structured detection.}
+

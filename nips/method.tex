@@ -1,0 +1,96 @@
+\vspace{-.2cm}
+\section{Method}
+\label{sec:method}
+\vspace{-.2cm}
+As we have noted the fundamental difficulty of the hypothesis testing problem is the composite nature of the alternative hypothesis.
+Because the alternative is indexed by sets, $C \in \Ccal(\rho)$, with a low cut size, it is reasonable that the test statistic that we will derive results from a combinatorial optimization program.
+In fact, we will show we can express the generalized likelihood ratio (GLR) statistic in terms of a modular program with submodular constraints.
+This will turn out to be a possibly NP-hard program, as a special case of such programs is the well known knapsack problem \cite{papadimitriou1998combinatorial}.
+With this in mind, we provide a convex relaxation, using the Lov\'asz extension, to the ideal GLR statistic.
+This relaxation conveniently has a dual objective that can be evaluated with a binary Markov random field energy minimization, which is a well understood program.
+We will reserve the theoretical statistical analysis for the following section.
+
+{\bf Submodularity.} Before we proceed, we will introduce the reader to submodularity and the Lov\'asz extension. (A very nice introduction to submodularity can be found in \cite{bach2010convex}.)
+For any set, which we may as well take to be the vertex set $[p]$, we say that a function $F : \{0,1\}^p \rightarrow \RR$ is submodular if for any $A,B \subseteq [p]$, $F(A) + F(B) \ge F(A \cap B) + F(A \cup B)$. (We will interchangeably use the bijection between $2^{[p]}$ and $\{0,1\}^p$ defined by $C \to \one_C$.)
+In this way, a submodular function experiences diminishing returns, as additions to large sets tend to be less dramatic than additions to small sets.
+But while this diminishing returns phenomenon is akin to concave functions, for optimization purposes submodularity acts like convexity, as it admits efficient minimization procedures.
+Moreover, for every submodular function there is a Lov\'asz extension $f : [0,1]^p \rightarrow \RR$ defined in the following way: for $\xb \in [0,1]^p$ let $x_{j_i}$ denote the $i$th largest element of $\xb$, then
+\[
+f(\xb) = x_{j_1} F(\{j_1\}) + \sum_{i=2}^{p} (F(\{ j_1,\ldots,j_i \}) - F(\{ j_1,\ldots,j_{i-1} \})) x_{j_i}
+\]
+Submodular functions as a class is similar to convex functions in that it is closed under addition and non-negative scalar multiplication.
+The following facts about Lov\'asz extensions will be important.
+\begin{proposition}{\cite{bach2010convex}}
+\label{prop:submod}
+Let $F$ be submodular and $f$ be its Lov\'asz extension. Then $f$ is convex, $f(\xb) = F(\xb)$ if $\xb \in \{0,1\}^p$, and 
+\[
+\min \{ F(\xb) : \xb \in \{0,1\}^p \} = \min \{ f(\xb) : \xb \in [0,1]^p \}
+\]
+\end{proposition}
+We are now sufficiently prepared to develop the test statistics that will be the focus of this paper.
+\vspace{-.1cm}
+\subsection{Graph Scan Statistic}
+\label{sec:graph_scan}
+\vspace{-.1cm}
+It is instructive, when faced with a class of probability distributions, indexed by subsets $\Ccal \subseteq 2^{[p]}$, to think about what techniques we would use if we knew the correct set $C \in \Ccal$ (which is often called oracle information).
+One would in this case be only testing the null hypothesis $H_0: \xb = \zero$ against the simple alternative $H_1: \xb \propto \one_C$.
+In this situation, we would employ the likelihood ratio test because by the Neyman-Pearson lemma it is the uniformly most powerful test statistic.
+The maximum likelihood estimator for $\xb$ is $\one_C \one_C^\top \yb / |C|$ (the MLE of $\mu$ is $\one_C^\top \yb /\sqrt{|C|}$) and the likelihood ratio turns out to be 
+\[
+\exp \left\{ - \frac 12 \| \yb \|^2 \right\} / \exp \left\{ - \frac 12 \left\| \frac{\one_C \one_C^\top \yb}{|C|} - \yb \right\|^2 \right\} = \exp\left\{ \frac{(\one_C^\top \yb)^2}{2|C|} \right\}
+\]
+Hence, the log-likelihood ratio is proportional to $(\one_C^\top \yb)^2/|C|$ and thresholding this at $z^2_{1 - \alpha/2}$ gives us a size $\alpha$ test.
+
+This reasoning has been subject to the assumption that we had oracle knowledge of $C$.
+A natural statistic, when $C$ is unknown, is the generalized log-likelihood ratio (GLR) defined by $\max (\one_C^\top \yb)^2/|C| \textrm{ s.t. } C \in \Ccal$.
+We will work with the {\em graph scan statistic} (GSS),
+\begin{equation}
+\label{eq:gss}
+\hat s = \max \frac{\one_C^\top \yb}{\sqrt{|C|}} \textrm{ s.t. } C \in \Ccal(\rho) = \{ C : \out(C) \le \rho \}
+\end{equation}
+which is nearly equivalent to the GLR. (We can in fact evaluate $\hat s$ for $\yb$ and $-\yb$, taking a maximum and obtain the GLR, but statistically this is nearly the same.)
+Notice that there is no guarantee that the program above is computationally feasible.
+In fact, it belongs to a class of programs, specifically modular programs with submodular constraints that is known to contain NP-hard instantiations, such as the ratio cut program and the knapsack program \cite{papadimitriou1998combinatorial}.
+Hence, we are compelled to form a relaxation of the above program, that will with luck provide a feasible algorithm.
+\vspace{-.1cm}
+\subsection{Lov\'asz Extended Scan Statistic}
+\label{sec:less}
+\vspace{-.1cm}
+It is common, when faced with combinatorial optimization programs that are computationally infeasible, to relax the domain from the discrete $\{0,1\}^p$ to a continuous domain, such as $[0,1]^p$.
+Generally, the hope is that optimizing the relaxation will approximate the combinatorial program well.
+First we require that we can relax the constraint $\out(C) \le \rho$ to the hypercube $[0,1]^p$.
+This will be accomplished by replacing it with its Lov\'asz extension $\|(\nabla \xb)_+ \|_1 \le \rho$.
+We then form the relaxed program, which we will call the {\em Lov\'asz extended scan statistic} (LESS), 
+\begin{equation}
+\label{eq:less}
+\hat l = \max_{t \in [p]} \max_\xb \frac{\xb^\top \yb}{\sqrt{t}} \textrm{ s.t. } \xb \in \Xcal(\rho,t) = \{ \xb \in [0,1]^p : \| (\nabla \xb)_+ \|_1 \le \rho, \one^\top \xb \le t \}
+\end{equation}
+We will find that not only can this be solved with a convex program, but the dual objective is a minimum binary Markov random field energy program.
+To this end, we will briefly go over binary Markov random fields, which we will find can be used to solve our relaxation.
+
+{\bf Binary Markov Random Fields.} Much of the previous work on graph structured statistical procedures assumes a Markov random field (MRF) model, in which there are discrete labels assigned to each vertex in $[p]$, and the observed variables $\{y_v\}_{v \in [p]}$ are conditionally independent given these labels.
+Furthermore, the prior distribution on the labels is drawn according to an Ising model (if the labels are binary) or a Potts model otherwise. 
+The task is to then compute a Bayes rule from the posterior of the MRF.
+The majority of the previous work assumes that we are interested in the maximum a-posteriori (MAP) estimator, which is the Bayes rule for the $0/1$-loss.
+This can generally be written in the form,
+\[
+\min_{\xb \in \{0,1\}^p} \sum_{v \in [p]} -l_v(x_v | y_v) + \sum_{v \ne u \in [p]} W_{v,u} I\{ x_v \ne x_u\}
+\]
+where $l_v$ is a data dependent log-likelihood.
+Such programs are called graph-representable in \cite{kolmogorov2004energy}, and are known to be solvable in the binary case with $s$-$t$ graph cuts.
+Thus, by the min-cut max-flow theorem the value of the MAP objective can be obtained by computing a maximum flow.
+More recently, a dual-decomposition algorithm has been developed in order to parallelize the computation of the MAP estimator for binary MRFs \cite{strandmark2010parallel,sontag2011introduction}.
+
+We are now ready to state our result regarding the dual form of the LESS program, \eqref{eq:less}.
+\begin{proposition}
+\label{prop:less_alg}
+Let $\eta_0, \eta_1 \ge 0$, and define the dual function of the LESS,
+\[
+g(\eta_0,\eta_1) = \max_{\xb \in \{0,1\}^p} \yb^\top \xb - \eta_0 \one^\top \xb - \eta_1 \| \nabla \xb \|_0
+\]
+The LESS estimator is equal to the following minimum of convex optimizations
+\[
+\hat l = \max_{t \in [p]} \frac{1}{\sqrt{t}} \min_{\eta_0,\eta_1 \ge 0} g(\eta_0,\eta_1) + \eta_0 t + \eta_1 \rho
+\]
+$g(\eta_0,\eta_1)$ is the objective of a MRF MAP problem, which is poly-time solvable with $s$-$t$ graph cuts.
+\end{proposition}

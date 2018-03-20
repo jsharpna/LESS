@@ -1,0 +1,71 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{nips13submit_e,times}
+\usepackage{hyperref,amsmath,graphicx}
+\usepackage{url}
+%\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
+
+\usepackage{mkolar_definitions,subfigure}
+
+\title{Near-optimal Anomaly Detection in Graphs\\ using Lov\'asz Extended Scan Statistic}
+
+\author{
+James Sharpnack \\
+Machine Learning Department\\
+Carnegie Mellon University\\
+Pittsburgh, PA 15213 \\
+\texttt{jsharpna@gmail.com} \\
+\And
+Akshay Krishnamurthy\\
+Computer Science Department\\
+Carnegie Mellon University\\
+Pittsburgh, PA 15213 \\
+\texttt{akshaykr@cs.cmu.edu} \\
+\AND
+Aarti Singh \\
+Machine Learning Department\\
+Carnegie Mellon University\\
+Pittsburgh, PA 15213 \\
+\texttt{aarti@cs.cmu.edu} \\
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\nipsfinalcopy % Uncomment for camera-ready version
+
+\begin{document}
+
+
+\maketitle
+
+\input{abstract.tex}
+\input{intro.tex}
+\input{relwork.tex}
+\input{lower.tex}
+\input{method.tex}
+\input{theory.tex}
+\input{examples.tex}
+\input{discussion.tex}
+
+
+\subsubsection*{Acknowledgments}
+This research is supported in part by AFOSR under grant FA9550-10-1-0382 and NSF under grant IIS-1116458. 
+AK is supported in part by a NSF Graduate Research Fellowship.
+We would like to thank Sivaraman Balakrishnan for his valuable input in the theoretical development of the paper.
+
+%\subsubsection*{References}
+{\small
+\bibliographystyle{unsrt}
+\bibliography{biblio}
+}
+\input{appendix.tex}
+
+\end{document}

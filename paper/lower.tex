@@ -1,0 +1,76 @@
+\section{Lower Bound}
+
+We establish a lower bound for estimation of $k$-sparse vectors.  
+
+\begin{theorem}
+Let $c \in (0, 1/8)$ and pick $\alpha, \beta \in (0,1)$ so that $k \le \alpha\beta p$. Define:
+\[
+\Xcal = \{ \xb \in \{0, \frac{\mu}{\sqrt{k}}\}^p : ||\xb||_0 = k\}
+\]
+and
+\[
+\tau = \frac{\alpha}{- \log (\alpha \beta)}(-\log \beta + \beta - 1)
+\]
+If:
+\[
+\frac{\mu}{\sigma} \le \sqrt{ c \tau k \log p/k}
+\]
+Then:
+\[
+\inf_{\hat{\xb}} \sup_{\xb \in \Xcal} \PP_{\xb}(||\xb - \hat{\xb}||_2^2 \ge \mu^2(1-\alpha)) > 0
+\]
+And:
+\[
+\inf_{\hat{\xb}} \sup_{\xb \in \Xcal} \PP_{\xb}(||\xb - \hat{\xb}||_0 \ge (1-\alpha)k) > 0
+\]
+\label{thm:lower}
+\end{theorem}
+
+The proof follows from two lemmas, which we state here:
+
+\begin{theorem}
+Assume that $M \ge 2$ and suppose that $\Theta$ contains elements $\theta_, \theta_1, \ldots, \theta_M$ such that:
+\begin{enumerate}
+\item $d(\theta_j, \theta_k) \ge 2s > 0 \ \  \forall 0 \le j < k \le M$;
+\item $\Pb_j \ll \Pb_0 \ \ \forall j=1, \ldots M,$ and
+\[
+\frac{1}{M} \sum_{j=1}^M K(P_j || P_0) \le \alpha \log M
+\]
+with $0 < \alpha < 1/8$ and $\Pb_j = \Pb_{\theta_j}$
+\end{enumerate}
+Then:
+\[
+\inf_{\hat{\theta}} \sup_{\theta \in \Theta} \Pb_{\theta}(d(\hat{\theta}, \theta) \ge s) \ge \frac{\sqrt{M}}{1+\sqrt{M}} \left(1 - 2\alpha - \sqrt{\frac{2\alpha}{\log M}}\right) > 0
+\]
+\label{thm:fano}
+\end{theorem}
+
+\begin{lemma}
+Let $\{0,1\}^p$ be equipped with hamming distance $d$ and let $\alpha, \beta \in (0,1)$ such that $k \le \alpha \beta p$. 
+Let $\Theta = \{ \theta \in \{0,1\}^p : ||\theta||_0 = k\}$.
+Then there exists some subset $\Theta' \subset \Theta$ with the following properties:
+\begin{enumerate}
+\item $d(\theta, \theta') \ge 2 (1-\alpha)k$ for $\theta, \theta' \in \Theta', \theta \ne \theta'$
+\item $\log |\Theta'| \ge \tau k \log p/k$ where
+\[
+\tau = \frac{\alpha}{- \log (\alpha \beta)}(-\log \beta + \beta - 1)
+\]
+\end{enumerate}
+\label{lem:massart}
+\end{lemma}
+
+\begin{proof}{Of Theorem~\ref{thm:lower}}
+For any two hypothesis $\xb, \xb' \in \Xcal$ we have:
+\[
+KL(\xb, \xb') = \frac{1}{2\sigma^2} ||\xb - \xb'||_2^2 \le \frac{\mu^2}{\sigma^2}
+\]
+Using the parameters $\alpha, \beta$ specified, apply Lemma~\ref{lem:massart} to obtain the set $\Theta'$.
+We construct a subset of $\Xcal$ corresponding to $\Theta'$ by including each vector $\xb$ that matches the support of a vector $\theta \in \Theta'$.
+Recall that for $\theta, \theta' \in \Theta'$ we have $d(\theta, \theta') = ||\theta - \theta'||_0 \ge 2 (1-\alpha) k$.
+This implies that for $\xb, \xb' \in \Xcal'$ we have:
+\[
+||\xb - \xb'||_2^2 \ge \frac{\mu^2}{k} ||\xb - \xb'||_0 \ge 2\mu^2(1-\alpha)
+\]
+
+At this point we can apply Theorem~\ref{thm:fano}, using the fact that $\log |\Xcal'| \ge \tau k \log p/k$ 
+\end{proof}
